@@ -36,4 +36,5 @@ X = vectorizer.fit_transform(map(lambda song: "".join(song.lyrics), corpus))
 km = KMeans(n_clusters=2)
 km.fit(X)
 
-print km.labels_
+for (i,label) in enumerate(km.labels_):
+    print corpus[i], label
