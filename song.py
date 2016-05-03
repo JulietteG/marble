@@ -12,3 +12,7 @@ class Song(object):
 
     def __repr__(self):
         return "<Song: artist=%r, title=%r, path=%r>" % (self.artist, self.title, self.path)
+
+    # join the lines and return string
+    def lyric_text(self):
+        return "".join(self.lyrics)

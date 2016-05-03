@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import sqlite3 as lite
 import sys
+from marble_exceptions import NoArtistWithNameError
 
 filename = "data/unique_artists.txt"
 
@@ -18,13 +19,15 @@ class Similarity(object):
 			self.artist_to_id[artist[-1].lower().replace(" ", "")] = artist[0]
 			self.id_to_artist[artist[0]] = artist[-1].lower().replace(" ", "")
 
-	def who_is_similar_to(self,artist):
+	def who_is_similar_to(self,artist_name):
 
 		with lite.connect('data/artist_similarity.db') as conn:
 			cur = conn.cursor()
 
-			artistName = sys.argv[1]
-			artistID = self.artist_to_id[artistName]
+			try:
+				artistID = self.artist_to_id[artist_name]
+			except KeyError,e:
+				raise NoArtistWithNameError(artist_name)
 
 			cur.execute("SELECT similar FROM similarity where target = \'" + artistID + "\'")
 
