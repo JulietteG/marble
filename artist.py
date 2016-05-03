@@ -24,3 +24,11 @@ class Artist(object):
     # concatenate all songs together and return the string
     def all_songs_text(self):
         return "\n".join(map(lambda song: song.lyric_text(), self.songs))
+
+    def num_correct(self):
+        # TODO: maybe catch if one isn't defined?
+        num = 0
+        for predicted in self.predicted_similar:
+            if predicted in self.correct_similar:
+                num += 1
+        return 1
