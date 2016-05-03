@@ -1,14 +1,14 @@
+#!/usr/bin/env python
 import sqlite3 as lite
 import sys
 
-filename = "/Users/juliettegrantham/Documents/artistsID_list.txt"
+filename = "data/unique_artists.txt"
 
 class SimilarityCalculator(object):
 	def __init__(self):
 
-		fp = open(filename, 'r')
-
-		contents = fp.read().split('\n')
+		with open(filename, 'r') as fp:
+			contents = fp.read().split('\n')
 
 		self.artist_to_id = {}
 		self.id_to_artist = {}
@@ -20,7 +20,7 @@ class SimilarityCalculator(object):
 
 	def who_is_similar_to(self,artist):
 
-		with lite.connect('artist_similarity.db') as conn:
+		with lite.connect('data/artist_similarity.db') as conn:
 			cur = conn.cursor()
 
 			artistName = sys.argv[1]
