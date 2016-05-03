@@ -12,7 +12,7 @@ class Cluster(object):
     def cluster(self):
         data = map(lambda artist: artist.all_songs_text(), self.artists)
 
-        vectorizer = CountVectorizer()
+        vectorizer = CountVectorizer(ngram_range=(1,2),stop_words='english')
         X = vectorizer.fit_transform(data)
 
         km = KMeans(n_clusters=50)
