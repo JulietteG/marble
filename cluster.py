@@ -13,7 +13,7 @@ class Song(object):
         self.title = title
 
         with open(self.path,"r") as f:
-            self.lyrics = map(lambda line: line.encode('ascii', 'ignore'),f.readlines())
+            self.lyrics = map(lambda line: line.decode('ascii', 'ignore'),f.readlines())
 
     def __repr__(self):
         return "<Song: artist=%r, title=%r, path=%r>" % (self.artist, self.title, self.path)
