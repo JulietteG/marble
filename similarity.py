@@ -23,8 +23,7 @@ class Similarity(object):
 		with lite.connect('data/artist_similarity.db') as conn:
 			cur = conn.cursor()
 
-			artistName = sys.argv[1]
-			artistID = self.artist_to_id[artistName]
+			artistID = self.artist_to_id[artist]
 
 			cur.execute("SELECT similar FROM similarity where target = \'" + artistID + "\'")
 

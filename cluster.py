@@ -5,14 +5,18 @@ import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.cluster import KMeans
 
-from song import Song
+class Cluster(object):
+    def __init__(self,artists):
+        self.artists = artists
 
+    def cluster(self):
+        data = map(lambda artist: artist.all_songs_text(), self.artists)
 
-vectorizer = CountVectorizer()
-X = vectorizer.fit_transform(map(lambda song: "".join(song.lyrics), corpus))
+        vectorizer = CountVectorizer()
+        X = vectorizer.fit_transform(data)
 
-km = KMeans(n_clusters=2)
-km.fit(X)
+        km = KMeans(n_clusters=2)
+        km.fit(X)
 
-for (i,label) in enumerate(km.labels_):
-    print corpus[i], label
+        for (i,label) in enumerate(km.labels_):
+            self.artists[i].label = label
