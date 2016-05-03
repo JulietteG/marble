@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import os
+import numpy as np
 from similarity import Similarity
 from cluster import Cluster
 from artist import Artist
@@ -29,6 +30,10 @@ def names_to_objs(names):
 
 
 sim = Similarity()
+
+# remove artists not in the similarity database
+artists = filter(lambda artist: artist.name in sim.artist_to_id.keys(),artists)
+
 for artist in artists:
     try:
         correct_similar_names = sim.who_is_similar_to(artist.name)
@@ -49,11 +54,15 @@ for artist in artists:
 
     # remove this artist from the cluster
     predicted_artists.remove(artist)
-    
+
     artist.predicted_similar = predicted_artists
 
-total_correct = 0
+num_correct,precision,recall = [],[],[]
 for artist in artists:
-    total_correct += artist.num_correct()
+    num_correct.append(artist.num_correct())
+    precision.append(artist.precision())
+    recall.append(artist.recall())
 
-print "correct", total_correct
+print "correct:", sum(num_correct)
+print "avg precision:", np.average(precision)
+print "avg recall:", np.average(recall)

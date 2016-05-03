@@ -25,6 +25,7 @@ class Artist(object):
     def all_songs_text(self):
         return "\n".join(map(lambda song: song.lyric_text(), self.songs))
 
+    # returns the number of true positives
     def num_correct(self):
         # TODO: maybe catch if one isn't defined?
         num = 0
@@ -33,3 +34,15 @@ class Artist(object):
                 print "in", self, "correctly predicted", predicted
                 num += 1
         return num
+
+    def precision(self):
+        if len(self.predicted_similar) > 0:
+            return float(self.num_correct()) / float(len(self.predicted_similar))
+        else:
+            return 1.0
+
+    def recall(self):
+        if len(self.correct_similar) > 0:
+            return float(self.num_correct()) / float(len(self.correct_similar))
+        else:
+            return 1.0
