@@ -4,7 +4,7 @@ import sys
 
 filename = "data/unique_artists.txt"
 
-class SimilarityCalculator(object):
+class Similarity(object):
 	def __init__(self):
 
 		with open(filename, 'r') as fp:
@@ -33,5 +33,5 @@ class SimilarityCalculator(object):
 			return map(lambda row: self.id_to_artist[row[0]], rows)
 
 if __name__ == '__main__':
-	calc = SimilarityCalculator()
+	calc = Similarity()
 	print calc.who_is_similar_to(sys.argv[1])
