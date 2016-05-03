@@ -57,12 +57,14 @@ for artist in artists:
 
     artist.predicted_similar = predicted_artists
 
-num_correct,precision,recall = [],[],[]
+num_correct,gold,precision,recall = [],[],[],[]
 for artist in artists:
     num_correct.append(artist.num_correct())
     precision.append(artist.precision())
     recall.append(artist.recall())
+    gold.append(len(artist.correct_similar))
 
 print "correct:", sum(num_correct)
+print "total gold:", sum(gold)
 print "avg precision:", np.average(precision)
 print "avg recall:", np.average(recall)

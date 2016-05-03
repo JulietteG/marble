@@ -15,7 +15,7 @@ class Cluster(object):
         vectorizer = CountVectorizer()
         X = vectorizer.fit_transform(data)
 
-        km = KMeans(n_clusters=2)
+        km = KMeans(n_clusters=50)
         km.fit(X)
 
         for (i,label) in enumerate(km.labels_):
