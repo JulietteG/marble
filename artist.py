@@ -13,7 +13,7 @@ class Artist(object):
         self.correct_similar = []
 
     def __repr__(self):
-        return "<Artist: name=%r, dirpath=%r, label=%r>" % (self.name, self.dirpath, self.label)
+        return "<Artist: name=%r, label=%r>" % (self.name, self.label)
 
     def _load_songs(self):
         for (dirpath, dirnames, filenames) in os.walk(self.dirpath):
@@ -30,5 +30,6 @@ class Artist(object):
         num = 0
         for predicted in self.predicted_similar:
             if predicted in self.correct_similar:
+                print "in", self, "correctly predicted", predicted
                 num += 1
-        return 1
+        return num

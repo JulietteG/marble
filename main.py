@@ -45,7 +45,12 @@ for artist in artists:
     label_to_artists[artist.label].append(artist)
 
 for artist in artists:
-    artist.predicted_similar = label_to_artists[artist.label] #[:].remove(artist)
+    predicted_artists = label_to_artists[artist.label][:]
+
+    # remove this artist from the cluster
+    predicted_artists.remove(artist)
+    
+    artist.predicted_similar = predicted_artists
 
 total_correct = 0
 for artist in artists:
