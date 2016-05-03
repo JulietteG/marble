@@ -25,6 +25,12 @@ class Artist(object):
     def all_songs_text(self):
         return "\n".join(map(lambda song: song.lyric_text(), self.songs))
 
+    def all_songs_lines(self):
+        lines = []
+        for song in self.songs:
+            lines += song.lyrics
+        return lines
+
     # returns the number of true positives
     def num_correct(self):
         # TODO: maybe catch if one isn't defined?
