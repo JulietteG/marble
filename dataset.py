@@ -115,10 +115,7 @@ class Dataset(object):
         sys.stderr.write("\n")
 
 
-    def calc_stats(self,y_predicted):
-
-        for i in xrange(len(y_predicted)):
-            self.artists[i].predicted_similar = y_predicted[i]
+    def calc_stats(self):
 
         sys.stderr.write("Calculating statistics...\n")
 
@@ -134,16 +131,18 @@ class Dataset(object):
         # print "avg precision:", np.average(precision)
         # print "avg recall:", np.average(recall)
 
+    def find_neighbors(self,X):
+        for i in xrange(len(X)):
+            (_,ind) = self.kn.neighbors(X[i])
+            self.artists[i].predicted_similar = ind
+
     def run(self):
         self.X = self.extract_features().toarray()
         self.y = self.construct_target()
 
         self.split_artists(self.X,self.y)
 
-        sys.stderr.write("Training KNeighbors...")
-        self.kn.train(self.X_train,self.y_train)
-        sys.stderr.write("\n")
+        self.kn.fit(self.X)
+        self.find_neighbors(self.X)
 
-        sys.stderr.write("Predicting for test set...")
-        y_predicted = self.kn.test(self.X_test)
-        sys.stderr.write("\n")
+        self.calc_stats()
