@@ -6,35 +6,34 @@ from nltk.corpus import cmudict
 from curses.ascii import isdigit
 
 class FeatureExtractor(object):
-    def __init__(self,artists):
-        self.artists = artists
+    def __init__(self):
         self._cmudict = cmudict.dict()
 
-    def extract(self):
+    def extract(self,artists):
 
         # calculate the various feature sets
-        v_counts = self.counts()
-        v_syllables_per_line = self.syllables_per_line()
-        # v_syllables_per_verse = self.syllables_per_verse()
-        # v_drawn_out = self.drawn_out()
-        # v_parentheses = self.parentheses()
-        # v_length_words = self.length_words()
-        # v_slang = self.slang()
+        v_counts = self.counts(artists)
+        v_syllables_per_line = self.syllables_per_line(artists)
+        # v_syllables_per_verse = self.syllables_per_verse(artists)
+        # v_drawn_out = self.drawn_out(artists)
+        # v_parentheses = self.parentheses(artists)
+        # v_length_words = self.length_words(artists)
+        # v_slang = self.slang(artists)
         
         # hstack features together
         return sparse.hstack((v_counts,v_syllables_per_line))
 
-    def counts(self):
-        data = map(lambda artist: artist.all_songs_text(), self.artists)
+    def counts(self,artists):
+        data = map(lambda artist: artist.all_songs_text(), artists)
         vectorizer = CountVectorizer(ngram_range=(1,2),stop_words='english',max_features=10**4)
         return vectorizer.fit_transform(data)
 
     """
     Count the average number of syllables per line in the artist's music
     """
-    def syllables_per_line(self):
+    def syllables_per_line(self,artists):
         syllables_vector = np.zeros((len(data),1))
-        for (i,artist) in enumerate(self.artists):
+        for (i,artist) in enumerate(artists):
             lines = artist.all_songs_lines()
             
             syllable_lengths = []
@@ -61,9 +60,9 @@ class FeatureExtractor(object):
     """
     Count the average number of syllables per verse in the artist's music
     """
-    def syllables_per_verse(self):
+    def syllables_per_verse(self,artists):
         syllables_verse_vector = np.zeros((len(data),1))
-        for (i,artist) in enumerate(self.artists):
+        for (i,artist) in enumerate(artists):
             lines = artist.all_songs_lines()
             
             syllable_verse_lengths = []
@@ -92,9 +91,9 @@ class FeatureExtractor(object):
     """
     Detect drawn-out words
     """
-    def drawn_out(self):
+    def drawn_out(self,artists):
         drawn_vector = np.zeros((len(data),1))
-        for (i,artist) in enumerate(self.artists):
+        for (i,artist) in enumerate(artists):
             lyrics = artist.all_songs_text()
 
             pattern = r"([a-z])\1\1+"
@@ -108,9 +107,9 @@ class FeatureExtractor(object):
     """
     Detect parentheses (indicating background music)
     """
-    def parentheses(self):
+    def parentheses(self,artists):
         parens_vector = np.zeros((len(data),1))
-        for (i,artist) in enumerate(self.artists):
+        for (i,artist) in enumerate(artists):
             lyrics = artist.all_songs_text()
 
             pattern = r"\([^)]+?\)"
@@ -124,9 +123,9 @@ class FeatureExtractor(object):
     """
     Count the average length (in words) of songs for each artist
     """
-    def length_words(self):
+    def length_words(self,artists):
         lengths_vector = np.zeros((len(data),1))
-        for (i,artist) in enumerate(self.artists):
+        for (i,artist) in enumerate(artists):
             song_lengths = []
             for song_text in artist.all_songs():
                 song_lengths.append(len(song_text.split()))
@@ -141,9 +140,9 @@ class FeatureExtractor(object):
     """
     Number of slang words in artist's songs
     """
-    def slang(self):
+    def slang(self,artists):
         slang_vector = np.zeros((len(data),1))
-        for (i,artist) in enumerate(self.artists):
+        for (i,artist) in enumerate(artists):
             songs_text = artist.all_songs_text()
 
             pattern1 = r"\b[a-zA-Z]*\'/b"
