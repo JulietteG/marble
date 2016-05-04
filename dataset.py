@@ -82,7 +82,36 @@ class Dataset(object):
         return y
 
     def split_artists(self,X,y):
-        return cross_validation.train_test_split(X, y, test_size=0.5, random_state=0)
+        artist_indices = range(len(X))
+        
+        # split the indices in half using train_test_split
+        train,test = cross_validation.train_test_split(artist_indices,test_size=0.5)
+
+        # calculate new X arrays
+        X_train = np.take(X,train)
+        X_test = np.take(X,test)
+
+        # calculate new y arrays
+        y_train = np.take(y,train)
+        y_test = np.take(y,test)
+
+        # filter out unused similar artists in y_train
+        for i in len(y_train):
+            for j in y_train[i]:
+                if y_train[i][j] not in train:
+                    y_train[i][j] = 0
+
+        # filter out unused similar artists in y_test
+        for i in len(y_test):
+            for j in y_test[i]:
+                if y_test[i][j] not in test:
+                    y_test[i][j] = 0
+
+        # and sort all y arrays
+        np.sort(y_train)
+        np.sort(y_test)
+
+        return X_train,X_test,y_train,y_test
 
 
     def calc_stats(self,y_predicted):
