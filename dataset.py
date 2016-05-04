@@ -136,7 +136,7 @@ class Dataset(object):
         for i in xrange(len(X)):
             progress(i,mod=10)
             (_,ind) = self.kn.neighbors(X[i].reshape(1,-1))
-            self.artists[i].predicted_similar = ind
+            self.artists[i].predicted_similar = ind[0]
         sys.stderr.write("\n")
 
     def run(self):
