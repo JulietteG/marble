@@ -4,12 +4,16 @@ import numpy as np
 
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.cluster import KMeans
+from nltk.corpus import cmudict
+from curses.ascii import isdigit
 
 class Cluster(object):
     def __init__(self,artists):
         self.artists = artists
 
     def cluster(self):
+        d = cmudict.dict()
+
         data = map(lambda artist: artist.all_songs_text(), self.artists)
 
         vectorizer = CountVectorizer(ngram_range=(1,2),stop_words='english')
@@ -18,12 +22,23 @@ class Cluster(object):
         Y = np.zeros((len(data),1))
         for (i,artist) in enumerate(self.artists):
             lines = artist.all_songs_lines()
+            
+            syllable_lengths = []
+            
+            for line in lines:
+                num_syllables = 0
+                for word in line.split():
+                    if word.lower() in d:
+                        syllable_list = [len(list(y for y in x if y[-1].isdigit())) for x in d[word.lower()]]
+                        num_syllables += syllable_list[0]
+                syllable_lengths.append(num_syllables)
+        
+            if len(syllable_lengths) > 0:
+                avg_syllables = np.average(syllable_lengths)
+            else:
+                avg_syllables = 0.0
 
-            # TODO: this is actually just the number of words per line
-            syllables = map(lambda line: len(line.split()), lines)
-            avg_length = np.average(syllables)
-
-            Y[i] = avg_length
+            Y[i] = avg_syllables
 
         V = np.concatenate((X,Y),axis=1)
         
