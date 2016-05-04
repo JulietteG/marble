@@ -94,6 +94,52 @@ class Cluster(object):
         
         # lengths_vector = sparse.coo_matrix(lengths_vector)
 
+        # """
+        # Count the average number of syllables per verse in the artist's music
+        # """
+        # syllables_verse_vector = np.zeros((len(data),1))
+        # for (i,artist) in enumerate(self.artists):
+        #     lines = artist.all_songs_lines()
+            
+        #     syllable_verse_lengths = []
+        #     num_syllables = 0
+            
+        #     for line in lines:
+        #         for word in line.split():
+        #             if word.lower() in d:
+        #                 syllable_list = [len(list(y for y in x if y[-1].isdigit())) for x in d[word.lower()]]
+        #                 num_syllables += syllable_list[0]
+        #         if line.split() and line.split()[0] == '\n':
+        #             syllable_verse_lengths.append(num_syllables)
+        #             num_syllables = 0
+        
+        #     if len(syllable_verse_lengths) > 0:
+        #         avg_syllables = np.average(syllable_verse_lengths)
+        #     else:
+        #         avg_syllables = 0.0
+
+
+        #     syllables_verse_vector[i] = avg_syllables
+        
+        # # convert syllables_vector to a sparse matrix
+        # syllables_verse_vector = sparse.coo_matrix(syllables_verse_vector)
+
+
+        """
+        Number of slang words in artist's songs
+        """
+        slang_vector = np.zeros((len(data),1))
+        for (i,artist) in enumerate(self.artists):
+            songs_text = artist.all_songs_text()
+
+            pattern1 = r"\b[a-zA-Z]*\'/b"
+            pattern2 = r"\b\'[a-zA-z]*/b"
+            prog = re.compile(pattern)
+            result = prog.findall(lyrics)
+            parens_vector[i] = len(result)
+
+
+
         V = sparse.hstack((counts_vector,syllables_vector))
 
         km = KMeans(n_clusters=50)
