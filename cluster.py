@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import numpy as np
-
+from scipy import sparse
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.cluster import KMeans
 from nltk.corpus import cmudict
@@ -16,8 +16,8 @@ class Cluster(object):
 
         data = map(lambda artist: artist.all_songs_text(), self.artists)
 
-        vectorizer = CountVectorizer(ngram_range=(1,2),stop_words='english')
-        X = vectorizer.fit_transform(data).toarray()
+        vectorizer = CountVectorizer(ngram_range=(1,2),stop_words='english',max_features=10**4)
+        X = vectorizer.fit_transform(data)
 
         Y = np.zeros((len(data),1))
         for (i,artist) in enumerate(self.artists):
@@ -38,10 +38,14 @@ class Cluster(object):
             else:
                 avg_syllables = 0.0
 
+
             Y[i] = avg_syllables
 
-        V = np.concatenate((X,Y),axis=1)
-        
+        # convert Y to a sparse matrix
+        Y = sparse.coo_matrix(Y)
+
+        V = sparse.hstack((X,Y))
+
         km = KMeans(n_clusters=50)
         km.fit(V)
 
