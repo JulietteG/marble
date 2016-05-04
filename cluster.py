@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import numpy as np
+import re
 from scipy import sparse
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.cluster import KMeans
@@ -17,9 +18,12 @@ class Cluster(object):
         data = map(lambda artist: artist.all_songs_text(), self.artists)
 
         vectorizer = CountVectorizer(ngram_range=(1,2),stop_words='english',max_features=10**4)
-        X = vectorizer.fit_transform(data)
+        counts_vector = vectorizer.fit_transform(data)
 
-        Y = np.zeros((len(data),1))
+        """
+        Count the average number of syllables per line in the artist's music
+        """
+        syllables_vector = np.zeros((len(data),1))
         for (i,artist) in enumerate(self.artists):
             lines = artist.all_songs_lines()
             
@@ -39,12 +43,42 @@ class Cluster(object):
                 avg_syllables = 0.0
 
 
-            Y[i] = avg_syllables
+            syllables_vector[i] = avg_syllables
+        
+        # convert syllables_vector to a sparse matrix
+        syllables_vector = sparse.coo_matrix(syllables_vector)
 
-        # convert Y to a sparse matrix
-        Y = sparse.coo_matrix(Y)
+        """
+        Detect drawn-out words
+        """
+        drawn_vector = np.zeros((len(data),1))
+        for (i,artist) in enumerate(self.artists):
+            lyrics = artist.all_songs_text()
 
-        V = sparse.hstack((X,Y))
+            pattern = r"([a-z])\1\1+"
+            prog = re.compile(pattern)
+            result = prog.findall(lyrics)
+            drawn_vector[i] = len(result)
+
+        # convert drawn_vector to a sparse matrix
+        drawn_vector = sparse.coo_matrix(drawn_vector)
+
+        """
+        Detect parenthesis (indicating background music)
+        """
+        parens_vector = np.zeros((len(data),1))
+        for (i,artist) in enumerate(self.artists):
+            lyrics = artist.all_songs_text()
+
+            pattern = r"\([^)]+?\)"
+            prog = re.compile(pattern)
+            result = prog.findall(lyrics)
+            parens_vector[i] = len(result)
+
+        # convert parens_vector to a sparse matrix
+        parens_vector = sparse.coo_matrix(parens_vector)
+
+        V = sparse.hstack((counts_vector,syllables_vector,drawn_vector,parens_vector))
 
         km = KMeans(n_clusters=50)
         km.fit(V)
