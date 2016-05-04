@@ -132,9 +132,12 @@ class Dataset(object):
         # print "avg recall:", np.average(recall)
 
     def find_neighbors(self,X):
+        sys.stderr.write("Finding nearest neighbors...")
         for i in xrange(len(X)):
-            (_,ind) = self.kn.neighbors(X[i])
+            progress(i,mod=10)
+            (_,ind) = self.kn.neighbors(X[i].reshape(1,-1))
             self.artists[i].predicted_similar = ind
+        sys.stderr.write("\n")
 
     def run(self):
         self.X = self.extract_features().toarray()
@@ -142,7 +145,10 @@ class Dataset(object):
 
         self.split_artists(self.X,self.y)
 
+        sys.stderr.write("Fitting X...")
         self.kn.fit(self.X)
+        sys.stderr.write("\n")
+
         self.find_neighbors(self.X)
 
         self.calc_stats()
