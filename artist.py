@@ -37,12 +37,11 @@ class Artist(object):
         return lines
 
     # returns the number of true positives
-    def num_correct(self):
-        # TODO: maybe catch if one isn't defined?
+    def num_correct(self,id_to_artist):
         num = 0
         for predicted in self.predicted_similar:
             if predicted in self.correct_similar:
-                print "in", self, "correctly predicted", predicted
+                print "in", self, "correctly predicted", id_to_artist[predicted]
                 num += 1
         return num
 

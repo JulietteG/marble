@@ -23,11 +23,17 @@ class Dataset(object):
         sys.stderr.write("Loading artists...")
 
         self.artists = []
+        self.id_to_artist = {}
+
         _id = 1
         for (dirpath, dirnames, filenames) in os.walk(root):
             if dirpath != root:
                 progress(_id)
-                self.artists.append(Artist(_id,dirpath))
+
+                artist = Artist(_id,dirpath)
+                self.artists.append(artist)
+                self.id_to_artist[_id] = artist
+
                 _id += 1
 
         sys.stderr.write("\n")
@@ -78,11 +84,31 @@ class Dataset(object):
     def split_artists(self,X,y):
         return cross_validation.train_test_split(X, y, test_size=0.5, random_state=0)
 
-    def run(self):
-        X = self.extract_features()
-        y = self.construct_target()
 
-        self.X_train, self.X_test, self.y_train, self.y_test = self.split_artists(X,y)
+    def calc_stats(self,y_predicted):
+
+        for i in xrange(len(y_predicted)):
+            self.artists[i].predicted_similar = y_predicted[i]
+
+        sys.stderr.write("Calculating statistics...\n")
+
+        num_correct,gold,precision,recall = [],[],[],[]
+        for artist in self.artists:
+            num_correct.append(artist.num_correct(self.id_to_artist))
+            # precision.append(artist.precision())
+            # recall.append(artist.recall())
+            # gold.append(len(artist.correct_similar))
+
+        print "correct:", sum(num_correct)
+        # print "total gold:", sum(gold)
+        # print "avg precision:", np.average(precision)
+        # print "avg recall:", np.average(recall)
+
+    def run(self):
+        self.X = self.extract_features().toarray()
+        self.y = self.construct_target()
+
+        self.X_train, self.X_test, self.y_train, self.y_test = self.split_artists(self.X,self.y)
 
         sys.stderr.write("Training KNeighbors...")
         self.kn.train(self.X_train,self.y_train)
@@ -91,20 +117,3 @@ class Dataset(object):
         sys.stderr.write("Predicting for test set...")
         y_predicted = self.kn.test(self.X_test)
         sys.stderr.write("\n")
-
-        print "distance", distance(y_predicted,self.y_test)
-
-    def calc_stats(self):
-        sys.stderr.write("Calculating statistics...\n")
-
-        num_correct,gold,precision,recall = [],[],[],[]
-        for artist in self.artists:
-            num_correct.append(artist.num_correct())
-            precision.append(artist.precision())
-            recall.append(artist.recall())
-            gold.append(len(artist.correct_similar))
-
-        print "correct:", sum(num_correct)
-        print "total gold:", sum(gold)
-        print "avg precision:", np.average(precision)
-        print "avg recall:", np.average(recall)

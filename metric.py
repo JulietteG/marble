@@ -3,7 +3,7 @@ import numpy as np
 # takes lists (of == len) of similarities and return the number of differences
 def distance(x,y):
     if len(x) != len(y):
-        raise ValueError("Different numbers of artists")
+        raise ValueError("Arrays of different lengths")
 
     # ensure that x,y similarity lists are sorted
     x = np.sort(x)
@@ -14,7 +14,8 @@ def distance(x,y):
 
     while i < len(x) and j < len(y):
         if x[i] == y[j]:
-            matches += 1
+            if x[i] != 0:
+                matches += 1
             i += 1
             j += 1
         elif x[i] > y[j]:
