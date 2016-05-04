@@ -66,8 +66,8 @@ class Dataset(object):
         y = np.zeros((len(self.artists),100))
 
         for (i,artist) in enumerate(self.artists):
-            for (j,simil) in enumerate(artist.correct_similar):
-                y[i][j] = simil._id
+            for (j,simil_id) in enumerate(artist.correct_similar):
+                y[i][j] = simil_id
 
         # sort similar artist ids in increasing order
         y = np.sort(y)
