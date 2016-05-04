@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import os
+import os,sys
 import numpy as np
 from similarity import Similarity
 from cluster import Cluster
@@ -9,63 +9,66 @@ from marble_exceptions import NoArtistWithNameError
 
 ROOT = 'lyrics/'
 
-artists = []
-_id = 1
-for (dirpath, dirnames, filenames) in os.walk(ROOT):
-    if dirpath != ROOT:
-        artists.append(Artist(_id,dirpath))
-        _id += 1
+def progress(n,mod=100):
+    if n % mod == 0:
+        sys.stderr.write('.')
 
-name_to_obj = {}
-for artist in artists:
-    name_to_obj[artist.name] = artist
+def load_artists():
+    sys.stderr.write("Loading artists...")
 
-def names_to_objs(names):
-    objs = []
-    for name in names:
+    artists = []
+    _id = 1
+    for (dirpath, dirnames, filenames) in os.walk(ROOT):
+        if dirpath != ROOT:
+            progress(_id)
+            artists.append(Artist(_id,dirpath))
+            _id += 1
+
+    sys.stderr.write("\n")
+
+    return artists
+
+def load_sim_db(artists):
+    sys.stderr.write("Loading similarity database...")
+    sim = Similarity(artists)
+
+    # remove artists not in the similarity database
+    artists = filter(lambda artist: artist.in_sim_db,artists)
+
+    sys.stderr.write("\n")
+
+    return sim
+
+def load_gold_standard(sim,artists):
+    sys.stderr.write("Processing gold standard...")
+
+    # set correct_similar for all artists
+    for (i,artist) in enumerate(artists):
+        progress(i)
         try:
-            objs.append(name_to_obj[name])
-        except KeyError,e:
+            artist.correct_similar = sim.who_is_similar_to(artist)
+        except NoArtistWithNameError, e:
             continue
-    return objs
 
+    sys.stderr.write("\n")
 
-sim = Similarity()
+def calc_stats(artists):
+    sys.stderr.write("Calculating statistics...\n")
 
-# remove artists not in the similarity database
-artists = filter(lambda artist: artist.name in sim.artist_to_id.keys(),artists)
+    num_correct,gold,precision,recall = [],[],[],[]
+    for artist in artists:
+        num_correct.append(artist.num_correct())
+        precision.append(artist.precision())
+        recall.append(artist.recall())
+        gold.append(len(artist.correct_similar))
 
-for artist in artists:
-    try:
-        correct_similar_names = sim.who_is_similar_to(artist.name)
-        artist.correct_similar = names_to_objs(correct_similar_names)
-    except NoArtistWithNameError,e:
-        continue
+    print "correct:", sum(num_correct)
+    print "total gold:", sum(gold)
+    print "avg precision:", np.average(precision)
+    print "avg recall:", np.average(recall)
 
-cluster = Cluster(artists)
-cluster.cluster()
-
-label_to_artists = defaultdict(lambda: [])
-
-for artist in artists:
-    label_to_artists[artist.label].append(artist)
-
-for artist in artists:
-    predicted_artists = label_to_artists[artist.label][:]
-
-    # remove this artist from the cluster
-    predicted_artists.remove(artist)
-
-    artist.predicted_similar = predicted_artists
-
-num_correct,gold,precision,recall = [],[],[],[]
-for artist in artists:
-    num_correct.append(artist.num_correct())
-    precision.append(artist.precision())
-    recall.append(artist.recall())
-    gold.append(len(artist.correct_similar))
-
-print "correct:", sum(num_correct)
-print "total gold:", sum(gold)
-print "avg precision:", np.average(precision)
-print "avg recall:", np.average(recall)
+if __name__ == '__main__':
+    artists = load_artists()
+    sim = load_sim_db(artists)
+    load_gold_standard(sim,artists)
+    calc_stats(artists)
