@@ -3,7 +3,7 @@ from metric import distance
 
 class KNeighbors(object):
     def __init__(self):
-        self.kn = NearestNeighbors(n_neighbors=100,metric='pyfunc',func=distance)
+        self.kn = NearestNeighbors(n_neighbors=3,metric=distance)
 
     def fit(self,X):
         return self.kn.fit(X)
