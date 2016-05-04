@@ -48,37 +48,53 @@ class Cluster(object):
         # convert syllables_vector to a sparse matrix
         syllables_vector = sparse.coo_matrix(syllables_vector)
 
-        """
-        Detect drawn-out words
-        """
-        drawn_vector = np.zeros((len(data),1))
-        for (i,artist) in enumerate(self.artists):
-            lyrics = artist.all_songs_text()
+        # """
+        # Detect drawn-out words
+        # """
+        # drawn_vector = np.zeros((len(data),1))
+        # for (i,artist) in enumerate(self.artists):
+        #     lyrics = artist.all_songs_text()
 
-            pattern = r"([a-z])\1\1+"
-            prog = re.compile(pattern)
-            result = prog.findall(lyrics)
-            drawn_vector[i] = len(result)
+        #     pattern = r"([a-z])\1\1+"
+        #     prog = re.compile(pattern)
+        #     result = prog.findall(lyrics)
+        #     drawn_vector[i] = len(result)
 
-        # convert drawn_vector to a sparse matrix
-        drawn_vector = sparse.coo_matrix(drawn_vector)
+        # # convert drawn_vector to a sparse matrix
+        # drawn_vector = sparse.coo_matrix(drawn_vector)
 
-        """
-        Detect parenthesis (indicating background music)
-        """
-        parens_vector = np.zeros((len(data),1))
-        for (i,artist) in enumerate(self.artists):
-            lyrics = artist.all_songs_text()
+        # """
+        # Detect parenthesis (indicating background music)
+        # """
+        # parens_vector = np.zeros((len(data),1))
+        # for (i,artist) in enumerate(self.artists):
+        #     lyrics = artist.all_songs_text()
 
-            pattern = r"\([^)]+?\)"
-            prog = re.compile(pattern)
-            result = prog.findall(lyrics)
-            parens_vector[i] = len(result)
+        #     pattern = r"\([^)]+?\)"
+        #     prog = re.compile(pattern)
+        #     result = prog.findall(lyrics)
+        #     parens_vector[i] = len(result)
 
-        # convert parens_vector to a sparse matrix
-        parens_vector = sparse.coo_matrix(parens_vector)
+        # # convert parens_vector to a sparse matrix
+        # parens_vector = sparse.coo_matrix(parens_vector)
 
-        V = sparse.hstack((counts_vector,syllables_vector,drawn_vector,parens_vector))
+        # """
+        # Count the average length (in words) of songs for each artist
+        # """
+        # lengths_vector = np.zeros((len(data),1))
+        # for (i,artist) in enumerate(self.artists):
+        #     song_lengths = []
+        #     for song_text in artist.all_songs():
+        #         song_lengths.append(len(song_text.split()))
+
+        #     if len(song_lengths) > 0:
+        #         lengths_vector[i] = np.average(song_lengths)
+        #     else:
+        #         lengths_vector[i] = 0
+        
+        # lengths_vector = sparse.coo_matrix(lengths_vector)
+
+        V = sparse.hstack((counts_vector,syllables_vector))
 
         km = KMeans(n_clusters=50)
         km.fit(V)

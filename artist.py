@@ -21,9 +21,13 @@ class Artist(object):
                 song_path = os.path.join(dirpath,filename)
                 self.songs.append(Song(self,song_path))
 
+    # return an array of the text of the songs
+    def all_songs(self):
+        return map(lambda song: song.lyric_text(), self.songs)
+
     # concatenate all songs together and return the string
     def all_songs_text(self):
-        return "\n".join(map(lambda song: song.lyric_text(), self.songs))
+        return "\n".join(self.all_songs())
 
     def all_songs_lines(self):
         lines = []
