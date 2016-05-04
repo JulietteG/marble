@@ -15,11 +15,11 @@ class FeatureExtractor(object):
         # calculate the various feature sets
         v_counts = self.counts()
         v_syllables_per_line = self.syllables_per_line()
-        v_syllables_per_verse = self.syllables_per_verse()
-        v_drawn_out = self.drawn_out()
-        v_parentheses = self.parentheses()
-        v_length_words = self.length_words()
-        v_slang = self.slang()
+        # v_syllables_per_verse = self.syllables_per_verse()
+        # v_drawn_out = self.drawn_out()
+        # v_parentheses = self.parentheses()
+        # v_length_words = self.length_words()
+        # v_slang = self.slang()
         
         # hstack features together
         return sparse.hstack((v_counts,v_syllables_per_line))
