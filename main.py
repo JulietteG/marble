@@ -10,10 +10,11 @@ from marble_exceptions import NoArtistWithNameError
 ROOT = 'lyrics/'
 
 artists = []
-
+_id = 1
 for (dirpath, dirnames, filenames) in os.walk(ROOT):
     if dirpath != ROOT:
-        artists.append(Artist(dirpath))
+        artists.append(Artist(_id,dirpath))
+        _id += 1
 
 name_to_obj = {}
 for artist in artists:
