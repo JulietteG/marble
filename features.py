@@ -32,7 +32,7 @@ class FeatureExtractor(object):
     Count the average number of syllables per line in the artist's music
     """
     def syllables_per_line(self,artists):
-        syllables_vector = np.zeros((len(data),1))
+        syllables_vector = np.zeros((len(artists),1))
         for (i,artist) in enumerate(artists):
             lines = artist.all_songs_lines()
             
@@ -41,7 +41,7 @@ class FeatureExtractor(object):
             for line in lines:
                 num_syllables = 0
                 for word in line.split():
-                    if word.lower() in d:
+                    if word.lower() in self._cmudict:
                         syllable_list = [len(list(y for y in x if y[-1].isdigit())) for x in self._cmudict[word.lower()]]
                         num_syllables += syllable_list[0]
                 syllable_lengths.append(num_syllables)
@@ -61,7 +61,7 @@ class FeatureExtractor(object):
     Count the average number of syllables per verse in the artist's music
     """
     def syllables_per_verse(self,artists):
-        syllables_verse_vector = np.zeros((len(data),1))
+        syllables_verse_vector = np.zeros((len(artists),1))
         for (i,artist) in enumerate(artists):
             lines = artist.all_songs_lines()
             
@@ -92,7 +92,7 @@ class FeatureExtractor(object):
     Detect drawn-out words
     """
     def drawn_out(self,artists):
-        drawn_vector = np.zeros((len(data),1))
+        drawn_vector = np.zeros((len(artists),1))
         for (i,artist) in enumerate(artists):
             lyrics = artist.all_songs_text()
 
@@ -108,7 +108,7 @@ class FeatureExtractor(object):
     Detect parentheses (indicating background music)
     """
     def parentheses(self,artists):
-        parens_vector = np.zeros((len(data),1))
+        parens_vector = np.zeros((len(artists),1))
         for (i,artist) in enumerate(artists):
             lyrics = artist.all_songs_text()
 
@@ -124,7 +124,7 @@ class FeatureExtractor(object):
     Count the average length (in words) of songs for each artist
     """
     def length_words(self,artists):
-        lengths_vector = np.zeros((len(data),1))
+        lengths_vector = np.zeros((len(artists),1))
         for (i,artist) in enumerate(artists):
             song_lengths = []
             for song_text in artist.all_songs():
@@ -141,7 +141,7 @@ class FeatureExtractor(object):
     Number of slang words in artist's songs
     """
     def slang(self,artists):
-        slang_vector = np.zeros((len(data),1))
+        slang_vector = np.zeros((len(artists),1))
         for (i,artist) in enumerate(artists):
             songs_text = artist.all_songs_text()
 
