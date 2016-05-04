@@ -1,7 +1,14 @@
 import numpy as np
 
-# takes SORTED lists (of == len) of similarities and return the number of differences
-def _distance_bw(x,y):
+# takes lists (of == len) of similarities and return the number of differences
+def distance(x,y):
+    if len(x) != len(y):
+        raise ValueError("Different numbers of artists")
+
+    # ensure that x,y similarity lists are sorted
+    x = np.sort(x)
+    y = np.sort(y)
+
     i,j = 0,0
     matches = 0
 
@@ -16,19 +23,3 @@ def _distance_bw(x,y):
             i += 1
 
     return len(x) - matches
-
-
-def distance(x,y):
-    if len(x) != len(y):
-        raise ValueError("Different numbers of artists")
-
-    # ensure that x,y similarity lists are sorted
-    x = np.sort(x)
-    y = np.sort(y)
-
-    diff = 0
-
-    for i in xrange(len(x)):
-        diff += _distance_bw(x[i],y[i])
-
-    return diff
