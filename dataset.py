@@ -10,7 +10,10 @@ from kneighbors import KNeighbors
 from features import FeatureExtractor
 
 class Dataset(object):
-    def __init__(self,root):
+    def __init__(self,root,verbose=False,max_artists=sys.maxint):
+        self.verbose = verbose
+        self.max_artists = max_artists
+
         self.load_artists(root)
 
         self.load_sim_db()
@@ -27,11 +30,17 @@ class Dataset(object):
 
         self.artists = []
 
-        for (i, (dirpath, dirnames, filenames)) in enumerate(os.walk(root)):
+        i = 0
+        for (dirpath, dirnames, filenames) in enumerate(os.walk(root)):
+            if i > self.max_artists:
+                break
+
             if dirpath != root:
                 progress(i)
                 artist = Artist(dirpath)
                 self.artists.append(artist)
+
+                i += 1
 
         sys.stderr.write("\n")
 
@@ -99,7 +108,7 @@ class Dataset(object):
 
     def update_weights(self,X):
 
-        sys.stderr.write("Updating weights...")
+        sys.stderr.write("\tUpdating weights...")
 
         LAMBDA = 0.05
 
@@ -127,21 +136,21 @@ class Dataset(object):
 
     def calc_stats(self):
 
-        sys.stderr.write("Calculating statistics...\n")
+        sys.stderr.write("\tCalculating statistics...\n")
 
         num_correct,gold,precision,recall = [],[],[],[]
         for artist in self.artists:
-            num_correct.append(artist.num_correct(self.id_to_artist))
+            num_correct.append(artist.num_correct(self.id_to_artist,verbose=self.verbose))
             # precision.append(artist.precision())
             # recall.append(artist.recall())
             gold.append(len(artist.correct_similar))
 
-        print "correct:", sum(num_correct), "/", sum(gold)
+        print "\t\tCorrect:", sum(num_correct), "/", sum(gold)
         # print "avg precision:", np.average(precision)
         # print "avg recall:", np.average(recall)
 
     def find_neighbors(self,X):
-        sys.stderr.write("Finding nearest neighbors...")
+        sys.stderr.write("\tFinding nearest neighbors...")
         for i in xrange(len(X)):
             progress(i)
             (_,ind) = self.kn.neighbors(X[i].reshape(1,-1))
@@ -154,7 +163,7 @@ class Dataset(object):
             sys.stderr.write("EM Iteration " + str(i + 1) + "\n")
 
             X = self.calc_x()
-            sys.stderr.write("Fitting X...")
+            sys.stderr.write("\tFitting X...")
             self.kn.fit(X)
             sys.stderr.write("\n")
 
