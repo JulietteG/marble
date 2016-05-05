@@ -12,13 +12,15 @@ from features import FeatureExtractor
 class Dataset(object):
     def __init__(self,root):
         self.load_artists(root)
-        self.initialize_weights()
 
         self.load_sim_db()
         self.process_gold_standard()
 
         self.extractor = FeatureExtractor()
+        self.extract_features()
+
         self.kn = KNeighbors()
+        self.initialize_weights()
 
     def load_artists(self,root):
         sys.stderr.write("Loading artists...")
@@ -40,7 +42,7 @@ class Dataset(object):
         sys.stderr.write("\n")
 
     def initialize_weights(self):
-        self.weights = np.ones(len(self.artists))
+        self.weights = np.ones(self.m_features.shape[1])
 
     def load_sim_db(self):
         sys.stderr.write("Loading similarity database...")
@@ -66,11 +68,18 @@ class Dataset(object):
 
     def extract_features(self):
         sys.stderr.write("Extracting features...")
-        X = self.extractor.extract(self.artists)
+        self.m_features = self.extractor.extract(self.artists)
         sys.stderr.write("\n")
 
-        return X
+    def calc_x(self):
+        X = np.zeros(self.m_features.shape)
 
+        for artist_num in xrange(self.m_features.shape[0]):
+            for feature_num in xrange(self.m_features.shape[1]):
+                X[artist_num,feature_num] = self.m_features[artist_num,feature_num] * self.weights[feature_num]
+
+        return X
+        
     def calc_stats(self):
 
         sys.stderr.write("Calculating statistics...\n")
@@ -96,11 +105,8 @@ class Dataset(object):
         sys.stderr.write("\n")
 
     def run(self):
-        self.X = self.extract_features().toarray()
-        self.y = self.construct_target()
 
-        self.split_artists(self.X,self.y)
-
+        X = self.calc_x()
         sys.stderr.write("Fitting X...")
         self.kn.fit(self.X)
         sys.stderr.write("\n")
