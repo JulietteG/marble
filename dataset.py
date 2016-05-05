@@ -5,9 +5,10 @@ from artist import Artist
 from utils import progress
 from similarity import Similarity
 from marble_exceptions import NoArtistWithNameError
-from sklearn import cross_validation
-from kneighbors import KNeighbors
 from features import FeatureExtractor
+
+from sklearn import cross_validation
+from sklearn.neighbors import NearestNeighbors
 
 class Dataset(object):
     def __init__(self,root,verbose=False,max_artists=sys.maxint,num_neighbors=100):
@@ -22,7 +23,7 @@ class Dataset(object):
         self.extractor = FeatureExtractor()
         self.extract_features()
 
-        self.kn = NearestNeighbors(n_neighbors=num_neighbors,metric="minkowski")
+        self.neigh = NearestNeighbors(n_neighbors=num_neighbors,metric="minkowski")
         self.initialize_weights()
 
     def load_artists(self,root):
@@ -153,7 +154,7 @@ class Dataset(object):
         sys.stderr.write("\tFinding nearest neighbors...")
         for i in xrange(len(X)):
             progress(i)
-            (_,ind) = self.kn.kneighbors(X[i].reshape(1,-1))
+            (_,ind) = self.neigh.kneighbors(X[i].reshape(1,-1))
             self.artists[i].predicted_similar = ind[0]
         sys.stderr.write("\n")
 
@@ -164,7 +165,7 @@ class Dataset(object):
 
             X = self.calc_x()
             sys.stderr.write("\tFitting X...")
-            self.kn.fit(X)
+            self.neigh.fit(X)
             sys.stderr.write("\n")
 
             self.find_neighbors(X)
