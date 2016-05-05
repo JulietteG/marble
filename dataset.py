@@ -114,7 +114,7 @@ class Dataset(object):
 
         sys.stderr.write("\tUpdating weights...")
 
-        artist_weights = np.ndarray((len(self.artists),len(self.weights)))
+        LAMBDA = 0.01
 
         for (i,artist) in enumerate(self.artists):
             progress(i)
@@ -126,20 +126,16 @@ class Dataset(object):
             features = self.m_features[artist._id]
             current_x = X[artist._id]
 
-            simil_weights = np.ndarray((len(artist.correct_similar),len(self.weights)))
-            for (j,simil_id) in enumerate(artist.correct_similar):
+            # calculate the average x vector for similar artists
+            avg_simil = np.average([X[simil_id] for simil_id in artist.correct_similar],axis=0)
 
-                # calc ideal weights for this artist-simil pair
-                simil_weights[j] = self.np_divide(X[simil_id],features)
+            # determine ideal weights for this artist
+            better_weights = self.np_divide(avg_simil,features)
 
-            artist_weights[i] = np.average(simil_weights,axis=0)
-
-        LAMBDA = 1.0
-
-        better_weights = np.average(artist_weights,axis=0)
-        diff = np.subtract(better_weights,self.weights)
-        adjust_by = np.multiply(diff,LAMBDA)
-        self.weights = np.add(self.weights, adjust_by)
+            # and adjust self.weights by LAMBDA * (better_weights - self.weights)
+            diff = np.subtract(better_weights,self.weights)
+            adjust_by = np.multiply(diff,LAMBDA)
+            self.weights = np.add(self.weights, adjust_by)
 
         sys.stderr.write("\n")
 
