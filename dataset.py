@@ -82,13 +82,40 @@ class Dataset(object):
         return y
 
     def split_artists(self,X,y):
-        return cross_validation.train_test_split(X, y, test_size=0.5, random_state=0)
+        sys.stderr.write("Splitting data into train / test sets...")
+        artist_indices = range(len(X))
+        
+        # split the indices in half using train_test_split
+        train,test = cross_validation.train_test_split(artist_indices,test_size=0.5)
+
+        # calculate new X arrays
+        self.X_train = np.take(X,train,axis=0)
+        self.X_test = np.take(X,test,axis=0)
+
+        # calculate new y arrays
+        self.y_train = np.take(y,train,axis=0)
+        self.y_test = np.take(y,test,axis=0)
+
+        # filter out unused similar artists in self.y_train
+        for i in xrange(len(self.y_train)):
+            for j in xrange(len(self.y_train[i])):
+                if self.y_train[i][j] not in train:
+                    self.y_train[i][j] = 0
+
+        # filter out unused similar artists in self.y_test
+        for i in xrange(len(self.y_test)):
+            for j in xrange(len(self.y_test[i])):
+                if self.y_test[i][j] not in test:
+                    self.y_test[i][j] = 0
+
+        # and sort all y arrays
+        np.sort(self.y_train)
+        np.sort(self.y_test)
+
+        sys.stderr.write("\n")
 
 
-    def calc_stats(self,y_predicted):
-
-        for i in xrange(len(y_predicted)):
-            self.artists[i].predicted_similar = y_predicted[i]
+    def calc_stats(self):
 
         sys.stderr.write("Calculating statistics...\n")
 
@@ -104,16 +131,24 @@ class Dataset(object):
         # print "avg precision:", np.average(precision)
         # print "avg recall:", np.average(recall)
 
+    def find_neighbors(self,X):
+        sys.stderr.write("Finding nearest neighbors...")
+        for i in xrange(len(X)):
+            progress(i)
+            (_,ind) = self.kn.neighbors(X[i].reshape(1,-1))
+            self.artists[i].predicted_similar = ind[0]
+        sys.stderr.write("\n")
+
     def run(self):
         self.X = self.extract_features().toarray()
         self.y = self.construct_target()
 
-        self.X_train, self.X_test, self.y_train, self.y_test = self.split_artists(self.X,self.y)
+        self.split_artists(self.X,self.y)
 
-        sys.stderr.write("Training KNeighbors...")
-        self.kn.train(self.X_train,self.y_train)
+        sys.stderr.write("Fitting X...")
+        self.kn.fit(self.X)
         sys.stderr.write("\n")
 
-        sys.stderr.write("Predicting for test set...")
-        y_predicted = self.kn.test(self.X_test)
-        sys.stderr.write("\n")
+        self.find_neighbors(self.X)
+
+        self.calc_stats()
