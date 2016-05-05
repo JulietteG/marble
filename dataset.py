@@ -14,6 +14,7 @@ class Dataset(object):
     def __init__(self,root,verbose=False,max_artists=sys.maxint,num_neighbors=100):
         self.verbose = verbose
         self.max_artists = max_artists
+        self.prev_correct = 0
 
         self.load_artists(root)
 
@@ -137,7 +138,7 @@ class Dataset(object):
         sys.stderr.write("\n")
 
 
-    def calc_stats(self):
+    def calc_stats(self,X):
 
         sys.stderr.write("\tCalculating statistics...\n")
 
@@ -148,7 +149,15 @@ class Dataset(object):
             # recall.append(artist.recall())
             gold.append(len(artist.correct_similar))
 
-        print "\t\tCorrect:", sum(num_correct), "/", sum(gold)
+        correct = sum(num_correct)
+        sys.stderr.write("\t\tCorrect: " + str(correct) + " / " + str(sum(gold)) + "\n")
+
+        if correct > self.prev_correct:
+            self.prev_correct = correct
+            self.update_weights(X)
+        else:
+            sys.stderr.write("\tDon't update weights...\n")
+
         # print "avg precision:", np.average(precision)
         # print "avg recall:", np.average(recall)
 
@@ -171,6 +180,5 @@ class Dataset(object):
             sys.stderr.write("\n")
 
             self.find_neighbors(X)
-            self.update_weights(X)
+            self.calc_stats(X)
 
-            self.calc_stats()
