@@ -80,16 +80,16 @@ wn.synsets('defeat')[0]]
         # calculate the various feature sets
         v_counts = self.counts(artists)
         v_syllables_per_line = self.syllables_per_line(artists)
-        # v_syllables_per_verse = self.syllables_per_verse(artists)
-        # v_drawn_out = self.drawn_out(artists)
-        # v_parentheses = self.parentheses(artists)
-        # v_length_words = self.length_words(artists)
-        # v_slang = self.slang(artists)
+        v_syllables_per_verse = self.syllables_per_verse(artists)
+        v_drawn_out = self.drawn_out(artists)
+        v_parentheses = self.parentheses(artists)
+        v_length_words = self.length_words(artists)
+        v_slang = self.slang(artists)
         # v_pronunciation = self.pronunciation(artists)
         # v_wordnet = self.wordnet_relations(artists)
         
         # hstack features together
-        return sparse.hstack((v_counts,v_syllables_per_line))
+        return sparse.hstack((v_counts,v_syllables_per_line,v_syllables_per_verse,v_drawn_out,v_parentheses,v_length_words,v_slang))
 
     def counts(self,artists):
         data = map(lambda artist: artist.all_songs_text(), artists)
@@ -138,7 +138,7 @@ wn.synsets('defeat')[0]]
             
             for line in lines:
                 for word in line.split():
-                    if word.lower() in d:
+                    if word.lower() in self._cmudict:
                         syllable_list = [len(list(y for y in x if y[-1].isdigit())) for x in self._cmudict[word.lower()]]
                         num_syllables += syllable_list[0]
                 if line.split() and line.split()[0] == '\n':
@@ -210,7 +210,7 @@ wn.synsets('defeat')[0]]
     """
     def slang(self,artists):
         slang_vector = np.zeros((len(artists),1))
-        for (i,artist) in enumerate(self.artists):
+        for (i,artist) in enumerate(artists):
             songs_text = artist.all_songs_text()
 
             # finds words with apostrophe at end or beginning
@@ -224,8 +224,8 @@ wn.synsets('defeat')[0]]
     def pronunciation(self,artists):
         pronunciation_vector = np.zeros((len(artists),NUMBER_OF_PHONEMES))
 
-        for (i,artist) in enumerate(self.artists):
-            for word in artist.all_songs_text:
+        for (i,artist) in enumerate(artists):
+            for word in artist.all_songs_text.split():
                 if word in d.words():
                     for phoneme in d.dict()[word][0]:
                         index = phoneme_dict[phoneme]
@@ -236,8 +236,8 @@ wn.synsets('defeat')[0]]
     def wordnet_relations(self,artists):
         wordnet_vector = np.zeros((len(artists),NUMBER_OF_SYNSETS))
 
-        for (i,artist) in enumerate(self.artists):
-            for word in artist.all_songs_text:
+        for (i,artist) in enumerate(artists):
+            for word in artist.all_songs_text.split():
                 for j, synset in enumerate(my_synsets):
                     synword = wn.synsets(word)
                     if synword:
