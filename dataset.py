@@ -22,7 +22,7 @@ class Dataset(object):
         self.extractor = FeatureExtractor()
         self.extract_features()
 
-        self.kn = KNeighbors(n_neighbors=num_neighbors)
+        self.kn = NearestNeighbors(n_neighbors=num_neighbors,metric="minkowski")
         self.initialize_weights()
 
     def load_artists(self,root):
@@ -153,7 +153,7 @@ class Dataset(object):
         sys.stderr.write("\tFinding nearest neighbors...")
         for i in xrange(len(X)):
             progress(i)
-            (_,ind) = self.kn.neighbors(X[i].reshape(1,-1))
+            (_,ind) = self.kn.kneighbors(X[i].reshape(1,-1))
             self.artists[i].predicted_similar = ind[0]
         sys.stderr.write("\n")
 
