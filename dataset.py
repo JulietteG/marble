@@ -134,7 +134,13 @@ class Dataset(object):
 
             artist_weights[i] = np.average(simil_weights,axis=0)
 
-        self.weights = np.average(artist_weights,axis=0)
+        LAMBDA = 1.0
+
+        better_weights = np.average(artist_weights,axis=0)
+        diff = np.subtract(better_weights,self.weights)
+        adjust_by = np.multiply(diff,LAMBDA)
+        self.weights = np.add(self.weights, adjust_by)
+
         sys.stderr.write("\n")
 
 
