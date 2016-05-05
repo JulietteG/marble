@@ -2,8 +2,7 @@ import os
 from song import Song
 
 class Artist(object):
-    def __init__(self,_id,dirpath):
-        self._id = _id
+    def __init__(self,dirpath):
         self.dirpath = dirpath
         self.name = dirpath.split("/")[-1]
 

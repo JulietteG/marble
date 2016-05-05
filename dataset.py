@@ -26,32 +26,43 @@ class Dataset(object):
         sys.stderr.write("Loading artists...")
 
         self.artists = []
-        self.id_to_artist = {}
 
-        _id = 0
-        for (dirpath, dirnames, filenames) in os.walk(root):
+        for (i, (dirpath, dirnames, filenames)) in enumerate(os.walk(root)):
             if dirpath != root:
-                progress(_id)
-
-                artist = Artist(_id,dirpath)
+                progress(i)
+                artist = Artist(dirpath)
                 self.artists.append(artist)
-                self.id_to_artist[_id] = artist
-
-                _id += 1
 
         sys.stderr.write("\n")
 
     def initialize_weights(self):
+        sys.stderr.write("Initializing weights...")
         self.weights = np.ones(self.m_features.shape[1])
+        sys.stderr.write("\n")
 
     def load_sim_db(self):
         sys.stderr.write("Loading similarity database...")
+
+        # set up sim db
         self.sim = Similarity(self.artists)
 
-        # remove artists not in the similarity database
-        self.artists = filter(lambda artist: artist.in_sim_db,self.artists)
+        # figure out who is in the database
+        self.artists = self.sim.whos_in_db()
+
+        # set the artist ids, finish loading the sim db
+        self.set_artist_ids()
+        self.sim.load()
 
         sys.stderr.write("\n")
+
+    def set_artist_ids(self):
+        self.id_to_artist = {}
+
+        _id = 0
+        for artist in self.artists:
+            self.id_to_artist[_id] = artist
+            artist._id = _id
+            _id += 1
 
     def process_gold_standard(self):
         sys.stderr.write("Processing gold standard...")
@@ -75,7 +86,7 @@ class Dataset(object):
         X = np.zeros(self.m_features.shape)
 
         for artist_num in xrange(self.m_features.shape[0]):
-            X[artist_num] = np.multiply(X[artist_num],self.weights)
+            X[artist_num] = np.multiply(self.m_features[artist_num],self.weights)
 
         return X
 
@@ -88,6 +99,10 @@ class Dataset(object):
         for (i,artist) in enumerate(self.artists):
             progress(i)
             
+            if len(artist.correct_similar) == 0:
+                continue
+
+            import pdb; pdb.set_trace()
             # this artist's features and current x vector
             features = self.m_features[artist._id]
             current_x = X[artist._id]
