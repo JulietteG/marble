@@ -101,7 +101,7 @@ class Dataset(object):
 
         sys.stderr.write("Updating weights...")
 
-        LAMBDA = 0.01
+        LAMBDA = 0.05
 
         for (i,artist) in enumerate(self.artists):
             progress(i)
@@ -134,10 +134,9 @@ class Dataset(object):
             num_correct.append(artist.num_correct(self.id_to_artist))
             # precision.append(artist.precision())
             # recall.append(artist.recall())
-            # gold.append(len(artist.correct_similar))
+            gold.append(len(artist.correct_similar))
 
-        print "correct:", sum(num_correct)
-        # print "total gold:", sum(gold)
+        print "correct:", sum(num_correct), "/", sum(gold)
         # print "avg precision:", np.average(precision)
         # print "avg recall:", np.average(recall)
 
