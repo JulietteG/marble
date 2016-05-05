@@ -5,16 +5,21 @@ from sklearn.feature_extraction.text import CountVectorizer
 from nltk.corpus import cmudict
 from curses.ascii import isdigit
 from nltk.corpus import wordnet as wn
+from collections import defaultdict
+import operator
 
 class FeatureExtractor(object):
     def __init__(self):
         self._cmudict = cmudict.dict()
+        self._cmuwords = cmudict.words()
 
         """
         Pronunciation inits
         """
 
-        NUMBER_OF_PHONEMES = 69
+        self.common_words = ["it", "is", "my", "be", "", "a", "to", "they", "that", "for", "if", "of", "for", "in", "on", "submit", "corrections", "lyrics", "i'm", "i", "will", "by", "it's", "are", "were", "am", "at", "was", "do"]
+
+        self.NUM_OF_PHONEMES = 69
 
         # makes a set of all phonemes
         phonemes = set()
@@ -24,15 +29,15 @@ class FeatureExtractor(object):
                 phonemes.add(value)
 
         # makes a dictionary of phoneme to index in phoneme array
-        phoneme_dict = {}
+        self.phoneme_dict = {}
 
         for i, phoneme in enumerate(phonemes):
-            phoneme_dict[phoneme] = i
+            self.phoneme_dict[phoneme] = i
 
         """
         Wordnet inits
         """
-        my_synsets = [wn.synsets('depression')[0], 
+        self.my_synsets = [wn.synsets('depression')[0], 
 wn.synsets('love')[0], 
 wn.synsets('religion')[0],
 wn.synsets('violence')[0],
@@ -70,10 +75,12 @@ wn.synsets('money')[0],
 wn.synsets('beauty')[0],
 wn.synsets('anger')[0],
 wn.synsets('mother')[0],
+wn.synsets('fame')[0],
+wn.synsets('sex')[0],
 wn.synsets('victory')[0],
 wn.synsets('defeat')[0]]
 
-        NUM_OF_SYNSETS = len(my_synsets)
+        self.NUM_OF_SYNSETS = len(self.my_synsets)
 
     def extract(self,artists):
 
@@ -85,11 +92,11 @@ wn.synsets('defeat')[0]]
         v_parentheses = self.parentheses(artists)
         v_length_words = self.length_words(artists)
         v_slang = self.slang(artists)
-        # v_pronunciation = self.pronunciation(artists)
-        # v_wordnet = self.wordnet_relations(artists)
+        v_pronunciation = self.pronunciation(artists)
+        v_wordnet = self.wordnet_relations(artists)
         
         # hstack features together
-        return sparse.hstack((v_counts,v_syllables_per_line,v_syllables_per_verse,v_drawn_out,v_parentheses,v_length_words,v_slang))
+        return sparse.hstack((v_counts, v_syllables_per_line, v_syllables_per_verse, v_drawn_out, v_parentheses, v_length_words, v_slang, v_pronunciation, v_wordnet))
 
     def counts(self,artists):
         data = map(lambda artist: artist.all_songs_text(), artists)
@@ -196,7 +203,7 @@ wn.synsets('defeat')[0]]
         for (i,artist) in enumerate(artists):
             song_lengths = []
             for song_text in artist.all_songs():
-                song_lengths.append(len(song_text.split()))
+                song_lengths.append(len(song_text))
 
             if len(song_lengths) > 0:
                 lengths_vector[i] = np.average(song_lengths)
@@ -222,27 +229,45 @@ wn.synsets('defeat')[0]]
         return sparse.coo_matrix(slang_vector)
 
     def pronunciation(self,artists):
-        pronunciation_vector = np.zeros((len(artists),NUMBER_OF_PHONEMES))
+        pronunciation_vector = np.zeros((len(artists),self.NUM_OF_PHONEMES))
 
         for (i,artist) in enumerate(artists):
-            for word in artist.all_songs_text.split():
-                if word in d.words():
-                    for phoneme in d.dict()[word][0]:
-                        index = phoneme_dict[phoneme]
+            for word in artist.all_songs_text().split():
+                try: 
+                    new_word = self._cmuwords[word]
+                    for phoneme in self._cmudict[word][0]:
+                        index = self.phoneme_dict[phoneme]
                         pronunciation_vector[i][index] += 1
+                except Exception, e:
+                    continue
 
         return sparse.coo_matrix(pronunciation_vector)
 
     def wordnet_relations(self,artists):
-        wordnet_vector = np.zeros((len(artists),NUMBER_OF_SYNSETS))
+        wordnet_vector = np.zeros((len(artists),self.NUM_OF_SYNSETS))
 
         for (i,artist) in enumerate(artists):
-            for word in artist.all_songs_text.split():
-                for j, synset in enumerate(my_synsets):
-                    synword = wn.synsets(word)
+            word_dict = defaultdict(int)
+
+            for word in artist.all_songs_text().split():
+                word = word.strip(",.'-?!;:()")
+                word = word.lower()
+                if word in self.common_words:
+                    continue
+                else:
+                    word_dict[word] += 1
+
+            sorted_dict = sorted(word_dict.items(), key=operator.itemgetter(1), reverse = True)
+            sorted_dict = sorted_dict[15:50]
+
+            for word in sorted_dict:
+                for j, synset in enumerate(self.my_synsets):
+                    synword = wn.synsets(word[0])
                     if synword:
                         synword = synword[0]
-                        wordnet_vector[i][j] += synword.path_similarity(synset)
+                        similarity = synword.path_similarity(synset)
+                        if similarity:
+                            wordnet_vector[i][j] += similarity
 
         return sparse.coo_matrix(wordnet_vector)
 
