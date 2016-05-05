@@ -9,9 +9,12 @@ from sklearn import cross_validation
 from kneighbors import KNeighbors
 from features import FeatureExtractor
 
+from split import Split
+
 class Dataset(object):
     def __init__(self,root):
         self.load_artists(root)
+        self.initialize_weights()
 
         self.load_sim_db()
         self.process_gold_standard()
@@ -37,6 +40,9 @@ class Dataset(object):
                 _id += 1
 
         sys.stderr.write("\n")
+
+    def initialize_weights(self):
+        self.weights = np.ones(len(self.artists))
 
     def load_sim_db(self):
         sys.stderr.write("Loading similarity database...")
