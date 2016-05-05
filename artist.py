@@ -1,8 +1,6 @@
 import os
 from song import Song
 
-from split import Split
-
 class Artist(object):
     def __init__(self,_id,dirpath):
         self._id = _id
@@ -12,9 +10,9 @@ class Artist(object):
         self.songs = []
         self._load_songs()
         self.label = None
-        
-        self.predicted_similar = Split()
-        self.correct_similar = Split()
+
+        self.predicted_similar = []
+        self.correct_similar = []
 
     def __repr__(self):
         return "<Artist: name=%r, label=%r>" % (self.name, self.label)

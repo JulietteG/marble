@@ -9,8 +9,6 @@ from sklearn import cross_validation
 from kneighbors import KNeighbors
 from features import FeatureExtractor
 
-from split import Split
-
 class Dataset(object):
     def __init__(self,root):
         self.load_artists(root)
@@ -72,54 +70,6 @@ class Dataset(object):
         sys.stderr.write("\n")
 
         return X
-
-    def construct_target(self):
-        sys.stderr.write("Constructing target...")
-        y = np.zeros((len(self.artists),100))
-
-        for (i,artist) in enumerate(self.artists):
-            for (j,simil_id) in enumerate(artist.correct_similar):
-                y[i][j] = simil_id
-
-        # sort similar artist ids in increasing order
-        y = np.sort(y)
-        sys.stderr.write("\n")
-
-        return y
-
-    def split_artists(self,X,y):
-        sys.stderr.write("Splitting data into train / test sets...")
-        artist_indices = range(len(X))
-        
-        # split the indices in half using train_test_split
-        train,test = cross_validation.train_test_split(artist_indices,test_size=0.5)
-
-        # calculate new X arrays
-        self.X_train = np.take(X,train,axis=0)
-        self.X_test = np.take(X,test,axis=0)
-
-        # calculate new y arrays
-        self.y_train = np.take(y,train,axis=0)
-        self.y_test = np.take(y,test,axis=0)
-
-        # filter out unused similar artists in self.y_train
-        for i in xrange(len(self.y_train)):
-            for j in xrange(len(self.y_train[i])):
-                if self.y_train[i][j] not in train:
-                    self.y_train[i][j] = 0
-
-        # filter out unused similar artists in self.y_test
-        for i in xrange(len(self.y_test)):
-            for j in xrange(len(self.y_test[i])):
-                if self.y_test[i][j] not in test:
-                    self.y_test[i][j] = 0
-
-        # and sort all y arrays
-        np.sort(self.y_train)
-        np.sort(self.y_test)
-
-        sys.stderr.write("\n")
-
 
     def calc_stats(self):
 
