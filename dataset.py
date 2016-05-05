@@ -41,7 +41,7 @@ class Dataset(object):
                 self.artists.append(artist)
 
         sys.stderr.write("\n")
-        
+
         # select a random sample of the artists we've loaded
         if len(self.artists) > self.max_artists:
             sys.stderr.write("Selecting random sample of " + str(self.max_artists) + " artists...\n")
@@ -114,7 +114,7 @@ class Dataset(object):
 
         sys.stderr.write("\tUpdating weights...")
 
-        LAMBDA = 0.05
+        LAMBDA = 0.001
 
         for (i,artist) in enumerate(self.artists):
             progress(i)
@@ -126,14 +126,13 @@ class Dataset(object):
             features = self.m_features[artist._id]
             current_x = X[artist._id]
 
-            # calculate the average of similar artist x vectors
-            avg_simil_x = np.average([X[simil_id] for simil_id in artist.correct_similar], axis=0)
+            for simil_id in artist.correct_similar:
 
-            # calc ideal weights for this artist
-            perfect_weights = self.np_divide(avg_simil_x,features)
-            diff = np.subtract(perfect_weights,self.weights)
-            adjust_by = np.multiply(diff,LAMBDA)
-            self.weights = np.add(self.weights, adjust_by)
+                # calc ideal weights for this artist-simil pair
+                perfect_weights = self.np_divide(X[simil_id],features)
+                diff = np.subtract(perfect_weights,self.weights)
+                adjust_by = np.multiply(diff,LAMBDA)
+                self.weights = np.add(self.weights, adjust_by)
 
         sys.stderr.write("\n")
 
