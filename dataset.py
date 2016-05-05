@@ -28,7 +28,7 @@ class Dataset(object):
         self.artists = []
         self.id_to_artist = {}
 
-        _id = 1
+        _id = 0
         for (dirpath, dirnames, filenames) in os.walk(root):
             if dirpath != root:
                 progress(_id)
@@ -68,18 +68,41 @@ class Dataset(object):
 
     def extract_features(self):
         sys.stderr.write("Extracting features...")
-        self.m_features = self.extractor.extract(self.artists)
+        self.m_features = self.extractor.extract(self.artists).toarray()
         sys.stderr.write("\n")
 
     def calc_x(self):
         X = np.zeros(self.m_features.shape)
 
         for artist_num in xrange(self.m_features.shape[0]):
-            for feature_num in xrange(self.m_features.shape[1]):
-                X[artist_num,feature_num] = self.m_features[artist_num,feature_num] * self.weights[feature_num]
+            X[artist_num] = np.multiply(X[artist_num],self.weights)
 
         return X
-        
+
+    def update_weights(self,X):
+
+        sys.stderr.write("Updating weights...")
+
+        LAMBDA = 0.001
+
+        for (i,artist) in enumerate(self.artists):
+            progress(i)
+            
+            # this artist's features and current x vector
+            features = self.m_features[artist._id]
+            current_x = X[artist._id]
+
+            # calculate the average of similar artist x vectors
+            avg_simil_x = np.average([X[simil_id] for simil_id in artist.correct_similar], axis=0)
+
+            # calc ideal weights for this artist
+            perfect_weights = np.divide(avg_simil_x,current_x)
+            adjust_by = np.multiply(perfect_weights,LAMBDA)
+            self.weights = np.sum(self.weights, adjust_by)
+
+        sys.stderr.write("\n")
+
+
     def calc_stats(self):
 
         sys.stderr.write("Calculating statistics...\n")
@@ -104,13 +127,17 @@ class Dataset(object):
             self.artists[i].predicted_similar = ind[0]
         sys.stderr.write("\n")
 
-    def run(self):
+    def run(self,num_iter):
 
-        X = self.calc_x()
-        sys.stderr.write("Fitting X...")
-        self.kn.fit(self.X)
-        sys.stderr.write("\n")
+        for i in xrange(num_iter):
+            sys.stderr.write("EM Iteration " + str(i + 1) + "\n")
 
-        self.find_neighbors(self.X)
+            X = self.calc_x()
+            sys.stderr.write("Fitting X...")
+            self.kn.fit(X)
+            sys.stderr.write("\n")
+
+            self.find_neighbors(X)
+            self.update_weights(X)
 
         self.calc_stats()
