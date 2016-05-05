@@ -90,11 +90,18 @@ class Dataset(object):
 
         return X
 
+    def np_divide(self,x,y):
+        res = np.zeros(x.shape)
+        for i in xrange(len(x)):
+            res[i] = (x[i] / y[i] if y[i] > 0.0 else 0.0)
+        return res
+
+
     def update_weights(self,X):
 
         sys.stderr.write("Updating weights...")
 
-        LAMBDA = 0.001
+        LAMBDA = 0.01
 
         for (i,artist) in enumerate(self.artists):
             progress(i)
@@ -102,7 +109,6 @@ class Dataset(object):
             if len(artist.correct_similar) == 0:
                 continue
 
-            import pdb; pdb.set_trace()
             # this artist's features and current x vector
             features = self.m_features[artist._id]
             current_x = X[artist._id]
@@ -111,9 +117,10 @@ class Dataset(object):
             avg_simil_x = np.average([X[simil_id] for simil_id in artist.correct_similar], axis=0)
 
             # calc ideal weights for this artist
-            perfect_weights = np.divide(avg_simil_x,current_x)
-            adjust_by = np.multiply(perfect_weights,LAMBDA)
-            self.weights = np.sum(self.weights, adjust_by)
+            perfect_weights = self.np_divide(avg_simil_x,features)
+            diff = np.subtract(perfect_weights,self.weights)
+            adjust_by = np.multiply(diff,LAMBDA)
+            self.weights = np.add(self.weights, adjust_by)
 
         sys.stderr.write("\n")
 
@@ -155,4 +162,4 @@ class Dataset(object):
             self.find_neighbors(X)
             self.update_weights(X)
 
-        self.calc_stats()
+            self.calc_stats()
