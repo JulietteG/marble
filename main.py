@@ -17,8 +17,11 @@ if __name__ == '__main__':
                       help="number of e/m iterations to run")
     parser.add_option("-a", "--artists", dest="max_artists", type='int', default=sys.maxint,
                       help="number of artists to run")
+    parser.add_option("-n", "--neighbors", dest="num_neighbors", type='int', default=100,
+                      help="number of neighbors to find for each artist")
 
     (options, args) = parser.parse_args()
 
-    d = Dataset(options.lyrics_root,verbose=options.verbose,max_artists=options.max_artists)
+    d = Dataset(options.lyrics_root,verbose=options.verbose,
+        max_artists=options.max_artists,num_neighbors=options.num_neighbors)
     d.run(num_iter=options.num_iter)

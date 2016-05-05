@@ -10,7 +10,7 @@ from kneighbors import KNeighbors
 from features import FeatureExtractor
 
 class Dataset(object):
-    def __init__(self,root,verbose=False,max_artists=sys.maxint):
+    def __init__(self,root,verbose=False,max_artists=sys.maxint,num_neighbors=100):
         self.verbose = verbose
         self.max_artists = max_artists
 
@@ -22,7 +22,7 @@ class Dataset(object):
         self.extractor = FeatureExtractor()
         self.extract_features()
 
-        self.kn = KNeighbors()
+        self.kn = KNeighbors(n_neighbors=num_neighbors)
         self.initialize_weights()
 
     def load_artists(self,root):
@@ -31,7 +31,7 @@ class Dataset(object):
         self.artists = []
 
         i = 0
-        for (dirpath, dirnames, filenames) in enumerate(os.walk(root)):
+        for (dirpath, dirnames, filenames) in os.walk(root):
             if i > self.max_artists:
                 break
 
