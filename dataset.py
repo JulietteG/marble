@@ -1,4 +1,4 @@
-import sys,os
+import sys,os,random
 import numpy as np
 
 from artist import Artist
@@ -31,19 +31,22 @@ class Dataset(object):
 
         self.artists = []
 
-        i = 0
-        for (dirpath, dirnames, filenames) in os.walk(root):
-            if i > self.max_artists:
-                break
+        for (i,(dirpath, dirnames, filenames)) in enumerate(os.walk(root)):
+            progress(i)
 
             if dirpath != root:
                 progress(i)
                 artist = Artist(dirpath)
+
                 self.artists.append(artist)
 
-                i += 1
-
         sys.stderr.write("\n")
+        
+        # select a random sample of the artists we've loaded
+        if len(self.artists) > self.max_artists:
+            sys.stderr.write("Selecting random sample of " + str(self.max_artists) + " artists...\n")
+            self.artists = random.sample(self.artists,self.max_artists)
+
 
     def initialize_weights(self):
         sys.stderr.write("Initializing weights...")
