@@ -4,10 +4,76 @@ from scipy import sparse
 from sklearn.feature_extraction.text import CountVectorizer
 from nltk.corpus import cmudict
 from curses.ascii import isdigit
+from nltk.corpus import wordnet as wn
 
 class FeatureExtractor(object):
     def __init__(self):
         self._cmudict = cmudict.dict()
+
+        """
+        Pronunciation inits
+        """
+
+        NUMBER_OF_PHONEMES = 69
+
+        # makes a set of all phonemes
+        phonemes = set()
+
+        for keys, values in self._cmudict.iteritems():
+            for value in values[0]:
+                phonemes.add(value)
+
+        # makes a dictionary of phoneme to index in phoneme array
+        phoneme_dict = {}
+
+        for i, phoneme in enumerate(phonemes):
+            phoneme_dict[phoneme] = i
+
+        """
+        Wordnet inits
+        """
+        my_synsets = [wn.synsets('depression')[0], 
+wn.synsets('love')[0], 
+wn.synsets('religion')[0],
+wn.synsets('violence')[0],
+wn.synsets('happiness')[0],
+wn.synsets('sadness')[0],
+wn.synsets('nature')[0],
+wn.synsets('betrayal')[0],
+wn.synsets('regret')[0],
+wn.synsets('death')[0],
+wn.synsets('faith')[0],
+wn.synsets('animal')[0],
+wn.synsets('country')[0],
+wn.synsets('war')[0],
+wn.synsets('loss')[0],
+wn.synsets('hope')[0],
+wn.synsets('dream')[0],
+wn.synsets('light')[0],
+wn.synsets('dark')[0],
+wn.synsets('loneliness')[0],
+wn.synsets('home')[0],
+wn.synsets('fear')[0],
+wn.synsets('pain')[0],
+wn.synsets('devil')[0],
+wn.synsets('angel')[0],
+wn.synsets('family')[0],
+wn.synsets('travel')[0],
+wn.synsets('hate')[0],
+wn.synsets('memory')[0],
+wn.synsets('distance')[0],
+wn.synsets('youth')[0],
+wn.synsets('bravery')[0],
+wn.synsets('work')[0],
+wn.synsets('poverty')[0],
+wn.synsets('money')[0],
+wn.synsets('beauty')[0],
+wn.synsets('anger')[0],
+wn.synsets('mother')[0],
+wn.synsets('victory')[0],
+wn.synsets('defeat')[0]]
+
+        NUM_OF_SYNSETS = len(my_synsets)
 
     def extract(self,artists):
 
@@ -19,6 +85,8 @@ class FeatureExtractor(object):
         # v_parentheses = self.parentheses(artists)
         # v_length_words = self.length_words(artists)
         # v_slang = self.slang(artists)
+        # v_pronunciation = self.pronunciation(artists)
+        # v_wordnet = self.wordnet_relations(artists)
         
         # hstack features together
         return sparse.hstack((v_counts,v_syllables_per_line))
@@ -142,13 +210,40 @@ class FeatureExtractor(object):
     """
     def slang(self,artists):
         slang_vector = np.zeros((len(artists),1))
-        for (i,artist) in enumerate(artists):
+        for (i,artist) in enumerate(self.artists):
             songs_text = artist.all_songs_text()
 
-            pattern1 = r"\b[a-zA-Z]*\'/b"
-            pattern2 = r"\b\'[a-zA-z]*/b"
+            # finds words with apostrophe at end or beginning
+            pattern = r"(\b(\w+?)[']\B)|(\B['](\w+?)\b)"
             prog = re.compile(pattern)
-            result = prog.findall(lyrics)
-            parens_vector[i] = len(result)
+            result = prog.findall(songs_text)
+            slang_vector[i] = len(result)
 
         return sparse.coo_matrix(slang_vector)
+
+    def pronunciation(self,artists):
+        pronunciation_vector = np.zeros((len(artists),NUMBER_OF_PHONEMES))
+
+        for (i,artist) in enumerate(self.artists):
+            for word in artist.all_songs_text:
+                if word in d.words():
+                    for phoneme in d.dict()[word][0]:
+                        index = phoneme_dict[phoneme]
+                        pronunciation_vector[i][index] += 1
+
+        return sparse.coo_matrix(pronunciation_vector)
+
+    def wordnet_relations(self,artists):
+        wordnet_vector = np.zeros((len(artists),NUMBER_OF_SYNSETS))
+
+        for (i,artist) in enumerate(self.artists):
+            for word in artist.all_songs_text:
+                for j, synset in enumerate(my_synsets):
+                    synword = wn.synsets(word)
+                    if synword:
+                        synword = synword[0]
+                        wordnet_vector[i][j] += synword.path_similarity(synset)
+
+        return sparse.coo_matrix(wordnet_vector)
+
+
