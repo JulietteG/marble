@@ -134,7 +134,7 @@ class Dataset(object):
     def find_neighbors(self,X):
         sys.stderr.write("Finding nearest neighbors...")
         for i in xrange(len(X)):
-            progress(i,mod=10)
+            progress(i)
             (_,ind) = self.kn.neighbors(X[i].reshape(1,-1))
             self.artists[i].predicted_similar = ind[0]
         sys.stderr.write("\n")
