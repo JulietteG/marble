@@ -20,7 +20,7 @@ class Similarity(object):
 			self.db_id_to_artist_name[artist[0]] = artist[-1].lower().replace(" ", "")
 
 	def whos_in_db(self):
-		for artist in artist_objs:
+		for artist in self.artist_objs:
 			artist.in_sim_db = (artist.name in self.artist_name_to_db_id.keys())
 
 		self.artist_objs = filter(lambda artist: artist.in_sim_db,self.artist_objs)
@@ -30,9 +30,10 @@ class Similarity(object):
 		self.artist_name_to_obj_id = {}
 		self.obj_id_to_artist_name = {}
 		
-		if artist.in_sim_db:
-			self.artist_name_to_obj_id[artist.name] = artist._id
-			self.obj_id_to_artist_name[artist._id] = artist.name
+		for artist in self.artist_objs:
+			if artist.in_sim_db:
+				self.artist_name_to_obj_id[artist.name] = artist._id
+				self.obj_id_to_artist_name[artist._id] = artist.name
 
 	def who_is_similar_to(self,artist):
 		"""
