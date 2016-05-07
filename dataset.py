@@ -6,9 +6,9 @@ from features import FeatureExtractor
 from models import Artist
 from util import progress,NoArtistWithNameError
 
-from sklearn import cross_validation
 from sklearn.neighbors import NearestNeighbors
-from sklearn.decomposition import PCA 
+from sklearn.decomposition import PCA
+from sklearn.neural_network import MLPClassifier
 
 class Dataset(object):
     def __init__(self,root,verbose=False,max_artists=sys.maxint,num_neighbors=100):
@@ -19,12 +19,13 @@ class Dataset(object):
 
         self.load_sim_db()
         self.process_gold_standard()
+        self.construct_target()
 
         self.extractor = FeatureExtractor()
         self.extract_features()
 
         self.neigh = NearestNeighbors(n_neighbors=num_neighbors,metric="minkowski")
-        self.initialize_weights()
+        self.clf = MLPClassifier(max_iter=1000)
 
     def load_artists(self,root):
         sys.stderr.write("Loading artists...")
@@ -46,12 +47,6 @@ class Dataset(object):
         if len(self.artists) > self.max_artists:
             sys.stderr.write("Selecting random sample of " + str(self.max_artists) + " artists...\n")
             self.artists = random.sample(self.artists,self.max_artists)
-
-
-    def initialize_weights(self):
-        sys.stderr.write("Initializing weights...")
-        self.weights = np.ones(self.m_features.shape[1])
-        sys.stderr.write("\n")
 
     def load_sim_db(self):
         sys.stderr.write("Loading similarity database...")
@@ -90,6 +85,12 @@ class Dataset(object):
 
         sys.stderr.write("\n")
 
+    def construct_target(self):
+        self.target = np.zeros((len(self.artists),len(self.artists)))
+        for artist in self.artists:
+            for simil_id in artist.correct_similar:
+                self.target[artist._id,simil_id] = 1
+
     def extract_features(self):
         sys.stderr.write("Extracting features...")
         self.m_features = self.extractor.extract(self.artists).toarray()
@@ -101,56 +102,9 @@ class Dataset(object):
         self.m_features = pca.transform(self.m_features)
         sys.stderr.write("\n")
 
-        import pdb; pdb.set_trace()
-
-    def calc_x(self):
-        X = np.zeros(self.m_features.shape)
-
-        for artist_num in xrange(self.m_features.shape[0]):
-            X[artist_num] = np.multiply(self.m_features[artist_num],self.weights)
-
-        return X
-
-    def np_divide(self,x,y):
-        res = np.zeros(x.shape)
-        for i in xrange(len(x)):
-            res[i] = (x[i] / y[i] if y[i] > 0.0 else 0.0)
-        return res
-
-
-    def update_weights(self,X):
-
-        sys.stderr.write("\tUpdating weights...")
-
-        LAMBDA = 0.01
-
-        for (i,artist) in enumerate(self.artists):
-            progress(i)
-            
-            if len(artist.correct_similar) == 0:
-                continue
-
-            # this artist's features and current x vector
-            features = self.m_features[artist._id]
-            current_x = X[artist._id]
-
-            # calculate the average x vector for similar artists
-            avg_simil = np.average([X[simil_id] for simil_id in artist.correct_similar],axis=0)
-
-            # determine ideal weights for this artist
-            better_weights = self.np_divide(avg_simil,features)
-
-            # and adjust self.weights by LAMBDA * (better_weights - self.weights)
-            diff = np.subtract(better_weights,self.weights)
-            adjust_by = np.multiply(diff,LAMBDA)
-            self.weights = np.add(self.weights, adjust_by)
-
-        sys.stderr.write("\n")
-
-
     def calc_stats(self):
 
-        sys.stderr.write("\tCalculating statistics...\n")
+        sys.stderr.write("Calculating statistics...\n")
 
         num_correct,gold,precision,recall = [],[],[],[]
         for artist in self.artists:
@@ -159,7 +113,7 @@ class Dataset(object):
             # recall.append(artist.recall())
             gold.append(len(artist.correct_similar))
 
-        print "\t\tCorrect:", sum(num_correct), "/", sum(gold)
+        print "\tCorrect:", sum(num_correct), "/", sum(gold)
         # print "avg precision:", np.average(precision)
         # print "avg recall:", np.average(recall)
 
@@ -172,16 +126,16 @@ class Dataset(object):
         sys.stderr.write("\n")
 
     def run(self,num_iter):
+        sys.stderr.write("Training Multi-layer Perceptron classifier...")
+        self.clf.fit(self.m_features,self.target)
+        sys.stderr.write("\n")
 
-        for i in xrange(num_iter):
-            sys.stderr.write("EM Iteration " + str(i + 1) + "\n")
-
-            X = self.calc_x()
-            sys.stderr.write("\tFitting X...")
-            self.neigh.fit(X)
-            sys.stderr.write("\n")
-
-            self.find_neighbors(X)
-            self.update_weights(X)
-
-            self.calc_stats()
+        sys.stderr.write("Calculating MLP Predictions...")
+        for artist in self.artists:
+            predicted_similar = self.clf.predict(self.m_features[artist._id].reshape(1,-1))
+            for i,yes in enumerate(predicted_similar[0]):
+                if yes == 1:
+                    artist.predicted_similar.append(i)
+        sys.stderr.write("\n")
+        
+        self.calc_stats()
