@@ -2,7 +2,7 @@
 
 import os
 from similarity import Similarity
-from artist import Artist
+from models import Artist
 
 ROOT = 'lyrics/'
 artists = []
@@ -17,7 +17,7 @@ sim = Similarity(artists)
 # count number of artists in similarity database
 count = 0
 for artist in artists:
-	if artist.name in sim.artist_to_id.keys():
+	if artist.name in sim.artist_name_to_db_id.keys():
 		count += 1
 
 # print out the results
