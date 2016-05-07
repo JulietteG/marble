@@ -3,38 +3,37 @@ import numpy as np
 
 from similarity import Similarity
 from features import FeatureExtractor
+from pca import pca
 from models import Artist
 from util import progress,NoArtistWithNameError
 
 from sklearn.neighbors import NearestNeighbors
-from sklearn.decomposition import PCA
 from sklearn.neural_network import MLPClassifier
 
-class Dataset(object):
-    def __init__(self,root,verbose=False,max_artists=sys.maxint,num_neighbors=100):
+class Marble(object):
+    def __init__(self,root,verbose=False,max_artists=sys.maxint,pca_components=100):
         self.verbose = verbose
-        self.max_artists = max_artists
 
-        self.load_artists(root)
+        self.load_artists(root,max_artists)
+        self.load_sim()
 
-        self.load_sim_db()
-        self.process_gold_standard()
         self.construct_target()
-
-        self.extractor = FeatureExtractor()
         self.extract_features()
-        self.pca()
+        
+        # perform PCA if requesting less components than the feature vector currently contains
+        if pca_components < self.m_features.shape[1]:
+            # using the pca method from pca.py
+            self.m_features = pca(self.m_features,n_components=pca_components)
 
         self.neigh = NearestNeighbors(n_neighbors=num_neighbors,metric="minkowski")
         self.clf = MLPClassifier(hidden_layer_sizes=(100,),max_iter=1000)
 
-    def load_artists(self,root):
+    def load_artists(self,root,max_artists=sys.maxint):
         sys.stderr.write("Loading artists...")
 
         self.artists = []
 
         for (i,(dirpath, dirnames, filenames)) in enumerate(os.walk(root)):
-            progress(i)
 
             if dirpath != root:
                 progress(i)
@@ -45,11 +44,20 @@ class Dataset(object):
         sys.stderr.write("\n")
 
         # select a random sample of the artists we've loaded
-        if len(self.artists) > self.max_artists:
-            sys.stderr.write("Selecting random sample of " + str(self.max_artists) + " artists...\n")
-            self.artists = random.sample(self.artists,self.max_artists)
+        if len(self.artists) > max_artists:
+            sys.stderr.write("Selecting random sample of " + str(max_artists) + " artists...\n")
+            self.artists = random.sample(self.artists,max_artists)
 
-    def load_sim_db(self):
+    def _set_artist_ids(self):
+        self.id_to_artist = {}
+
+        _id = 0
+        for artist in self.artists:
+            self.id_to_artist[_id] = artist
+            artist._id = _id
+            _id += 1
+
+    def load_sim(self):
         sys.stderr.write("Loading similarity database...")
 
         # set up sim db
@@ -59,34 +67,24 @@ class Dataset(object):
         self.artists = self.sim.whos_in_db()
 
         # set the artist ids, finish loading the sim db
-        self.set_artist_ids()
+        self._set_artist_ids()
         self.sim.load()
 
         sys.stderr.write("\n")
 
-    def set_artist_ids(self):
-        self.id_to_artist = {}
-
-        _id = 0
-        for artist in self.artists:
-            self.id_to_artist[_id] = artist
-            artist._id = _id
-            _id += 1
-
-    def process_gold_standard(self):
-        sys.stderr.write("Processing gold standard...")
-
+    def _process_gold_standard(self):
         # set correct_similar for all artists
         for (i,artist) in enumerate(self.artists):
-            progress(i)
             try:
                 artist.correct_similar = self.sim.who_is_similar_to(artist)
             except NoArtistWithNameError, e:
                 continue
 
-        sys.stderr.write("\n")
-
     def construct_target(self):
+        # first process the gold standard
+        self._process_gold_standard()
+
+        # and then construct the y target matrix
         self.target = np.zeros((len(self.artists),len(self.artists)))
         for artist in self.artists:
             for simil_id in artist.correct_similar:
@@ -94,14 +92,8 @@ class Dataset(object):
 
     def extract_features(self):
         sys.stderr.write("Extracting features...")
-        self.m_features = self.extractor.extract(self.artists).toarray()
-        sys.stderr.write("\n")
-
-    def pca(self):
-        sys.stderr.write("Principal component analysis...")
-        pca = PCA(n_components=100)
-        pca.fit(self.m_features)
-        self.m_features = pca.transform(self.m_features)
+        extractor = FeatureExtractor()
+        self.m_features = extractor.extract(self.artists).toarray()
         sys.stderr.write("\n")
 
     def calc_stats(self):

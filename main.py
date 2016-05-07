@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import sys
-from dataset import Dataset
+from marble import Marble
 from optparse import OptionParser
 
 LYRICS_ROOT = 'lyrics/'
@@ -22,6 +22,6 @@ if __name__ == '__main__':
 
     (options, args) = parser.parse_args()
 
-    d = Dataset(options.lyrics_root,verbose=options.verbose,
-        max_artists=options.max_artists,num_neighbors=options.num_neighbors)
+    d = Marble(options.lyrics_root,verbose=options.verbose,
+        max_artists=options.max_artists)
     d.run(num_iter=options.num_iter)
