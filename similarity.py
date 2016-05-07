@@ -1,6 +1,6 @@
 import sqlite3 as lite
 import sys
-from marble_exceptions import NoArtistWithNameError
+from util import NoArtistWithNameError
 
 filename = "data/unique_artists.txt"
 

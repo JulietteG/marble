@@ -12,7 +12,7 @@ for (dirpath, dirnames, filenames) in os.walk(ROOT):
     if dirpath != ROOT:
         artists.append(Artist(dirpath))
 
-sim = Similarity()
+sim = Similarity(artists)
 
 # count number of artists in similarity database
 count = 0

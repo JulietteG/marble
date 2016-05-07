@@ -1,11 +1,11 @@
 import sys,os,random
 import numpy as np
 
-from artist import Artist
-from utils import progress
 from similarity import Similarity
-from marble_exceptions import NoArtistWithNameError
 from features import FeatureExtractor
+from models import Artist
+from util import progress
+from util import NoArtistWithNameError
 
 from sklearn import cross_validation
 from sklearn.neighbors import NearestNeighbors

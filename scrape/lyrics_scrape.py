@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import re, os
 import requests
 import nltk

@@ -1,12 +1,11 @@
 import numpy as np
-import re
+import re,operator 
 from scipy import sparse
 from sklearn.feature_extraction.text import CountVectorizer
 from nltk.corpus import cmudict
 from curses.ascii import isdigit
 from nltk.corpus import wordnet as wn
 from collections import defaultdict
-import operator
 
 class FeatureExtractor(object):
     def __init__(self):
