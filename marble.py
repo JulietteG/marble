@@ -1,5 +1,6 @@
 import sys,os,random
 import numpy as np
+from exceptions import NotImplementedError
 
 from similarity import Similarity
 from features import FeatureExtractor
@@ -7,7 +8,6 @@ from pca import pca
 from models import Artist
 from util import progress,NoArtistWithNameError
 
-from sklearn.neighbors import NearestNeighbors
 from sklearn.neural_network import MLPClassifier
 
 class Marble(object):
@@ -24,9 +24,6 @@ class Marble(object):
         if pca_components < self.m_features.shape[1]:
             # using the pca method from pca.py
             self.m_features = pca(self.m_features,n_components=pca_components)
-
-        self.neigh = NearestNeighbors(n_neighbors=num_neighbors,metric="minkowski")
-        self.clf = MLPClassifier(hidden_layer_sizes=(100,),max_iter=1000)
 
     def load_artists(self,root,max_artists=sys.maxint):
         sys.stderr.write("Loading artists...")
@@ -111,25 +108,8 @@ class Marble(object):
         # print "avg precision:", np.average(precision)
         # print "avg recall:", np.average(recall)
 
-    def find_neighbors(self,X):
-        sys.stderr.write("\tFinding nearest neighbors...")
-        for i in xrange(len(X)):
-            progress(i)
-            (_,ind) = self.neigh.kneighbors(X[i].reshape(1,-1))
-            self.artists[i].predicted_similar = ind[0]
-        sys.stderr.write("\n")
+    def train(self):
+        raise NotImplementedError("Marble.train must be overriden in subclass")
 
-    def run(self,num_iter):
-        sys.stderr.write("Training Multi-layer Perceptron classifier...")
-        self.clf.fit(self.m_features,self.target)
-        sys.stderr.write("\n")
-
-        sys.stderr.write("Calculating MLP Predictions...")
-        for artist in self.artists:
-            predicted_similar = self.clf.predict(self.m_features[artist._id].reshape(1,-1))
-            for i,yes in enumerate(predicted_similar[0]):
-                if yes == 1:
-                    artist.predicted_similar.append(i)
-        sys.stderr.write("\n")
-        
-        self.calc_stats()
+    def test(self):
+        raise NotImplementedError("Marble.test must be overriden in subclass")
