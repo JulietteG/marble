@@ -1,11 +1,17 @@
 MARBLE uses `sklearn.neural_network.MLPClassifier`. For now, this requires installing the most recent development version of sci-kit learn. 
 
-## Installing sci-kit learn
+## Installing scikit-learn
 
 Start by cloning [https://github.com/scikit-learn/scikit-learn.git](https://github.com/scikit-learn/scikit-learn.git)
 
 ```
 git clone https://github.com/scikit-learn/scikit-learn.git
+```
+
+In order to build scikit-learn, you'll need to install Cython, as via:
+
+```
+pip install cython
 ```
 
 In the newly downloaded `scikit-learn` directory, install scikit-learn via the following instructions (as taken from [https://github.com/scikit-learn/scikit-learn](https://github.com/scikit-learn/scikit-learn)).
