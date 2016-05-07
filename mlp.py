@@ -39,7 +39,7 @@ if __name__ == '__main__':
                       help="print status messages to stdout")
     parser.add_option("-a", "--artists", dest="max_artists", type='int', default=sys.maxint,
                       help="number of artists to run")
-    parser.add_option("-p", "--pca", dest="pca_components", type='int', default=sys.maxint, help="number of PCA components")
+    parser.add_option("-p", "--pca", dest="pca_components", type='int', default=100, help="number of PCA components")
 
     (options, args) = parser.parse_args()
 
