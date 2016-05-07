@@ -4,8 +4,7 @@ import numpy as np
 from similarity import Similarity
 from features import FeatureExtractor
 from models import Artist
-from util import progress
-from util import NoArtistWithNameError
+from util import progress,NoArtistWithNameError
 
 from sklearn import cross_validation
 from sklearn.neighbors import NearestNeighbors
