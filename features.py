@@ -36,48 +36,8 @@ class FeatureExtractor(object):
         """
         Wordnet inits
         """
-        self.my_synsets = [wn.synsets('depression')[0], 
-wn.synsets('love')[0], 
-wn.synsets('religion')[0],
-wn.synsets('violence')[0],
-wn.synsets('happiness')[0],
-wn.synsets('sadness')[0],
-wn.synsets('nature')[0],
-wn.synsets('betrayal')[0],
-wn.synsets('regret')[0],
-wn.synsets('death')[0],
-wn.synsets('faith')[0],
-wn.synsets('animal')[0],
-wn.synsets('country')[0],
-wn.synsets('war')[0],
-wn.synsets('loss')[0],
-wn.synsets('hope')[0],
-wn.synsets('dream')[0],
-wn.synsets('light')[0],
-wn.synsets('dark')[0],
-wn.synsets('loneliness')[0],
-wn.synsets('home')[0],
-wn.synsets('fear')[0],
-wn.synsets('pain')[0],
-wn.synsets('devil')[0],
-wn.synsets('angel')[0],
-wn.synsets('family')[0],
-wn.synsets('travel')[0],
-wn.synsets('hate')[0],
-wn.synsets('memory')[0],
-wn.synsets('distance')[0],
-wn.synsets('youth')[0],
-wn.synsets('bravery')[0],
-wn.synsets('work')[0],
-wn.synsets('poverty')[0],
-wn.synsets('money')[0],
-wn.synsets('beauty')[0],
-wn.synsets('anger')[0],
-wn.synsets('mother')[0],
-wn.synsets('fame')[0],
-wn.synsets('sex')[0],
-wn.synsets('victory')[0],
-wn.synsets('defeat')[0]]
+        synset_words = ['depression','love','religion','violence','happiness','sadness','nature','betrayal','regret','death','faith','animal','country','war','loss','hope','dream','light','dark','loneliness','home','fear','pain','devil','angel','family','travel','hate','memory','distance','youth','bravery','work','poverty','money','beauty','anger','mother','fame','sex','victory','defeat']
+        self.my_synsets = [wn.synsets(word) for word in synset_words]
 
         self.NUM_OF_SYNSETS = len(self.my_synsets)
 
