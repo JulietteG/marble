@@ -23,9 +23,10 @@ class Dataset(object):
 
         self.extractor = FeatureExtractor()
         self.extract_features()
+        self.pca()
 
         self.neigh = NearestNeighbors(n_neighbors=num_neighbors,metric="minkowski")
-        self.clf = MLPClassifier(max_iter=1000)
+        self.clf = MLPClassifier(hidden_layer_sizes=(100,),max_iter=1000)
 
     def load_artists(self,root):
         sys.stderr.write("Loading artists...")
@@ -96,6 +97,7 @@ class Dataset(object):
         self.m_features = self.extractor.extract(self.artists).toarray()
         sys.stderr.write("\n")
 
+    def pca(self):
         sys.stderr.write("Principal component analysis...")
         pca = PCA(n_components=100)
         pca.fit(self.m_features)
