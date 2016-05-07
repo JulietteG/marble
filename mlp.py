@@ -1,14 +1,16 @@
 #!/usr/bin/env python
-import sys
+import sys,json
 from marble import Marble
 from optparse import OptionParser
 
-class MLPMarble(Marble):
-    def __init__(self,root,verbose=False,max_artists=sys.maxint,pca_components=100):
-        # initialize the superclass
-        Marble.__init__(self,root,verbose,max_artists,pca_components)
+from sklearn.neural_network import MLPClassifier
 
-        self.clf = MLPClassifier(hidden_layer_sizes=(100,),max_iter=1000)
+class MLPMarble(Marble):
+    def __init__(self,root,conf,verbose=False,max_artists=sys.maxint):
+        # initialize the superclass
+        Marble.__init__(self,root,conf,verbose,max_artists)
+
+        self.clf = MLPClassifier(hidden_layer_sizes=tuple(conf["hidden_layer_sizes"]),max_iter=conf["max_iter"])
 
     def train(self):
         sys.stderr.write("Training Multi-layer Perceptron classifier...")
@@ -39,10 +41,15 @@ if __name__ == '__main__':
                       help="print status messages to stdout")
     parser.add_option("-a", "--artists", dest="max_artists", type='int', default=sys.maxint,
                       help="number of artists to run")
-    parser.add_option("-p", "--pca", dest="pca_components", type='int', default=100, help="number of PCA components")
+    parser.add_option("-c", "--conf", dest="conf", default="conf/mlp.json",
+            help="location of the mlp json config file, specifying model parameters")
 
     (options, args) = parser.parse_args()
 
-    d = MLPMarble(options.lyrics_root,verbose=options.verbose,
-        max_artists=options.max_artists, pca_components=options.pca_components)
-    d.train(num_iter=options.num_iter)
+    # open and parse the config file
+    with open(options.conf) as f:
+        conf = json.load(f)
+        sys.stderr.write("Using parameters: " + str(conf) + "\n")
+
+        d = MLPMarble(options.lyrics_root,conf,verbose=options.verbose,max_artists=options.max_artists)
+        d.train()

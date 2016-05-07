@@ -1,0 +1,7 @@
+{
+  "pca": 100,
+  "max_iter": 1000,
+  "hidden_layer_sizes": [
+    100
+  ]
+}

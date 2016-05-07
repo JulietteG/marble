@@ -8,10 +8,8 @@ from pca import pca
 from models import Artist
 from util import progress,NoArtistWithNameError
 
-from sklearn.neural_network import MLPClassifier
-
 class Marble(object):
-    def __init__(self,root,verbose=False,max_artists=sys.maxint,pca_components=100):
+    def __init__(self,root,conf,verbose=False,max_artists=sys.maxint):
         self.verbose = verbose
 
         self.load_artists(root,max_artists)
@@ -21,9 +19,9 @@ class Marble(object):
         self.extract_features()
         
         # perform PCA if requesting less components than the feature vector currently contains
-        if pca_components < self.m_features.shape[1]:
+        if conf["pca"] < self.m_features.shape[1]:
             # using the pca method from pca.py
-            self.m_features = pca(self.m_features,n_components=pca_components)
+            self.m_features = pca(self.m_features,n_components=conf["pca"])
 
     def load_artists(self,root,max_artists=sys.maxint):
         sys.stderr.write("Loading artists...")
