@@ -8,6 +8,7 @@ from util import progress,NoArtistWithNameError
 
 from sklearn import cross_validation
 from sklearn.neighbors import NearestNeighbors
+from sklearn.decomposition import PCA 
 
 class Dataset(object):
     def __init__(self,root,verbose=False,max_artists=sys.maxint,num_neighbors=100):
@@ -93,6 +94,14 @@ class Dataset(object):
         sys.stderr.write("Extracting features...")
         self.m_features = self.extractor.extract(self.artists).toarray()
         sys.stderr.write("\n")
+
+        sys.stderr.write("Principal component analysis...")
+        pca = PCA(n_components=100)
+        pca.fit(self.m_features)
+        self.m_features = pca.transform(self.m_features)
+        sys.stderr.write("\n")
+
+        import pdb; pdb.set_trace()
 
     def calc_x(self):
         X = np.zeros(self.m_features.shape)
