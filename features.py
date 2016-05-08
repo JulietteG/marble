@@ -37,7 +37,7 @@ class FeatureExtractor(object):
         Wordnet inits
         """
         synset_words = ['depression','love','religion','violence','happiness','sadness','nature','betrayal','regret','death','faith','animal','country','war','loss','hope','dream','light','dark','loneliness','home','fear','pain','devil','angel','family','travel','hate','memory','distance','youth','bravery','work','poverty','money','beauty','anger','mother','fame','sex','victory','defeat']
-        self.my_synsets = [wn.synsets(word) for word in synset_words]
+        self.my_synsets = [wn.synsets(word)[0] for word in synset_words]
 
         self.NUM_OF_SYNSETS = len(self.my_synsets)
 
@@ -51,11 +51,11 @@ class FeatureExtractor(object):
         v_parentheses = self.parentheses(artists)
         v_length_words = self.length_words(artists)
         v_slang = self.slang(artists)
-        v_pronunciation = self.pronunciation(artists)
-        v_wordnet = self.wordnet_relations(artists)
+        #v_pronunciation = self.pronunciation(artists)
+        #v_wordnet = self.wordnet_relations(artists)
         
         # hstack features together
-        return sparse.hstack((v_counts, v_syllables_per_line, v_syllables_per_verse, v_drawn_out, v_parentheses, v_length_words, v_slang, v_pronunciation, v_wordnet))
+        return sparse.hstack((v_counts, v_syllables_per_line, v_syllables_per_verse, v_drawn_out, v_parentheses, v_length_words, v_slang))
 
     def counts(self,artists):
         data = map(lambda artist: artist.all_songs_text(), artists)
