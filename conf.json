@@ -12,8 +12,12 @@
         ]
     },
     "paths":{
-        "dir":"var",
+        "dir":"var/",
         "counts":"counts",
         "pca":"pca"
+    },
+    "root":{
+        "test":"lyrics/test",
+        "train":"lyrics/train"
     }
 }
