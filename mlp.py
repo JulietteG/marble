@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import sys,json,os
+import numpy as np
 from marble import Marble
 from optparse import OptionParser
 
@@ -12,7 +13,7 @@ class MLPMarble(Marble):
 
         self.clf = MLPClassifier(hidden_layer_sizes=tuple(conf["hidden_layer_sizes"]),max_iter=conf["max_iter"])
 
-    def train(self):
+    def train(self,model_file):
         sys.stderr.write("Training Multi-layer Perceptron classifier...")
         self.clf.fit(self.m_features,self.target)
         sys.stderr.write("\n")
@@ -26,6 +27,10 @@ class MLPMarble(Marble):
         sys.stderr.write("\n")
 
         self.calc_stats()
+
+        sys.stderr.write("Writing decision function to file...")
+        np.save(model_file,self.clf.decision_function(self.m_features))
+        sys.stderr.write("\n")
 
     def test(self):
         pass
