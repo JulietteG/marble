@@ -1,6 +1,0 @@
-{
-  "pca": 100,
-  "em_iter": 10,
-  "neighbors": 100,
-  "metric": "minkowski"
-}

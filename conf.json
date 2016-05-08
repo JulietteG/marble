@@ -1,0 +1,19 @@
+{
+    "pca": 100,
+    "em":{
+        "iter": 10,
+        "neighbors": 100,
+        "metric": "minkowski"
+    },
+    "mlp":{
+        "max_iter": 1000,
+        "hidden_layer_sizes": [
+            100
+        ]
+    },
+    "paths":{
+        "dir":"var",
+        "counts":"counts",
+        "pca":"pca"
+    }
+}
