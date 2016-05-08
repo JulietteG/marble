@@ -1,7 +1,8 @@
 import numpy as np
-import re,operator,os,pickle 
+import re,operator,sys,os,pickle 
 from scipy import sparse
 from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.decomposition import PCA
 from nltk.corpus import cmudict
 from curses.ascii import isdigit
 from nltk.corpus import wordnet as wn
@@ -44,7 +45,7 @@ class FeatureExtractor(object):
 
         self.NUM_OF_SYNSETS = len(self.my_synsets)
 
-    def extract(self,artists):
+    def extract(self,artists,n_pca_components=100):
 
         # calculate the various feature sets
         v_counts = self.counts(artists)
@@ -58,7 +59,15 @@ class FeatureExtractor(object):
         #v_wordnet = self.wordnet_relations(artists)
         
         # hstack features together
-        return sparse.hstack((v_counts, v_syllables_per_line, v_syllables_per_verse, v_drawn_out, v_parentheses, v_length_words, v_slang))
+        hstack = sparse.hstack((v_counts, v_syllables_per_line, v_syllables_per_verse, v_drawn_out, v_parentheses, v_length_words, v_slang))
+        self.m_features = hstack.toarray()
+
+        # perform PCA if requesting less components than the feature vector currently contains
+        if n_pca_components < self.m_features.shape[1]:
+            # using the pca method from pca.py
+            self.m_features = self.pca(n_components=n_pca_components)
+
+        return self.m_features
 
     def counts(self,artists):
         if self.mode == "test":
@@ -246,4 +255,24 @@ class FeatureExtractor(object):
 
         return sparse.coo_matrix(wordnet_vector)
 
+    def pca(self,n_components=100):
+        """
+        Run Principal Component Analysis to reduce the vector X
+        to n_components dimensions
+        """
 
+        sys.stderr.write("Principal component analysis...")
+       
+        if self.mode == "test":
+            # load the PCA from file
+            with open(os.path.join(conf["dir"],conf["pca"])) as f:
+                pca = pickle.load(f)
+        else:
+            # construct and fit the PCA
+            pca = PCA(n_components=n_components)
+            pca.fit(self.m_features)
+
+        self.m_features = pca.transform(self.m_features)
+        sys.stderr.write("\n")
+
+        return self.m_features
