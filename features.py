@@ -11,6 +11,8 @@ from collections import defaultdict
 class FeatureExtractor(object):
     def __init__(self,conf,mode="train"):
         self.paths = conf["paths"]
+        self.n_pca_components = (conf["pca"] if "pca" in conf else sys.maxint)
+        
         self.mode = mode
 
         self._cmudict = cmudict.dict()
@@ -45,7 +47,7 @@ class FeatureExtractor(object):
 
         self.NUM_OF_SYNSETS = len(self.my_synsets)
 
-    def extract(self,artists,n_pca_components=100):
+    def extract(self,artists):
 
         # calculate the various feature sets
         v_counts = self.counts(artists)
@@ -62,10 +64,8 @@ class FeatureExtractor(object):
         hstack = sparse.hstack((v_counts, v_syllables_per_line, v_syllables_per_verse, v_drawn_out, v_parentheses, v_length_words, v_slang))
         self.m_features = hstack.toarray()
 
-        # perform PCA if requesting less components than the feature vector currently contains
-        if n_pca_components < self.m_features.shape[1]:
-            # using the pca method from pca.py
-            self.m_features = self.pca(n_components=n_pca_components)
+        # perform PCA as appropriate
+        self.pca()
 
         return self.m_features
 
@@ -255,7 +255,7 @@ class FeatureExtractor(object):
 
         return sparse.coo_matrix(wordnet_vector)
 
-    def pca(self,n_components=100):
+    def pca(self):
         """
         Run Principal Component Analysis to reduce the vector X
         to n_components dimensions
@@ -269,10 +269,9 @@ class FeatureExtractor(object):
                 pca = pickle.load(f)
         else:
             # construct and fit the PCA
-            pca = PCA(n_components=n_components)
+            pca = PCA(n_components=self.n_pca_components)
             pca.fit(self.m_features)
 
         self.m_features = pca.transform(self.m_features)
         sys.stderr.write("\n")
 
-        return self.m_features

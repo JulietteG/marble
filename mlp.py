@@ -7,9 +7,9 @@ from optparse import OptionParser
 from sklearn.neural_network import MLPClassifier
 
 class MLPMarble(Marble):
-    def __init__(self,root,conf,verbose=False,max_artists=sys.maxint):
+    def __init__(self,conf,mode="train",verbose=False,max_artists=sys.maxint):
         # initialize the superclass
-        Marble.__init__(self,root,conf,verbose,max_artists)
+        Marble.__init__(self,conf,mode,verbose,max_artists)
 
         self.clf = MLPClassifier(hidden_layer_sizes=tuple(conf["hidden_layer_sizes"]),max_iter=conf["max_iter"])
 
@@ -32,15 +32,14 @@ class MLPMarble(Marble):
         np.save(model_file,self.clf.decision_function(self.m_features))
         sys.stderr.write("\n")
 
-    def test(self):
-        pass
+    def test(self,model_file):
+        decision_function = np.load(model_file)
+
 
 
 if __name__ == '__main__':
 
     parser = OptionParser(usage="usage: mlp.py <train|test> [options]")
-    parser.add_option("-l", "--lyrics", dest="lyrics_root",
-                      help="where are the lyrics files located?", default="lyrics/")
     parser.add_option("-v", "--verbose",
                       action="store_true", dest="verbose", default=False,
                       help="print status messages to stdout")
@@ -48,8 +47,6 @@ if __name__ == '__main__':
                       help="number of artists to run")
     parser.add_option("-c", "--conf", dest="conf", default="conf/mlp.json",
             help="location of the mlp json config file, specifying model parameters")
-    parser.add_option("-f", "--filename", dest="model_name", default="out/model.mlp",
-            help="location of the model file (either to write if training, or to read if testing)")
 
     (options, args) = parser.parse_args()
 

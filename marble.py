@@ -9,24 +9,30 @@ from models import Artist
 from util import progress,NoArtistWithNameError
 
 class Marble(object):
-    def __init__(self,root,conf,verbose=False,max_artists=sys.maxint):
+    def __init__(self,conf,mode,verbose=False,max_artists=sys.maxint):
+        self.conf = conf 
+        self.mode = mode 
         self.verbose = verbose
 
-        self.load_artists(root,max_artists)
+        self.load_artists(max_artists)
         self.load_sim()
-
-        self.construct_target()
-        self.extract_features()
         
-        # perform PCA if requesting less components than the feature vector currently contains
-        if conf["pca"] < self.m_features.shape[1]:
-            # using the pca method from pca.py
-            self.m_features = pca(self.m_features,n_components=conf["pca"])
+        # always process the gold standard
+        self.process_gold_standard()
 
-    def load_artists(self,root,max_artists=sys.maxint):
+        # only construct a target if we're training
+        if self.mode == "train":
+            self.construct_target()
+        
+        # and always extract the features
+        self.extract_features()
+
+    def load_artists(self,max_artists=sys.maxint):
         sys.stderr.write("Loading artists...")
 
         self.artists = []
+        
+        root = self.conf["root"][self.mode]
 
         for (i,(dirpath, dirnames, filenames)) in enumerate(os.walk(root)):
 
@@ -67,7 +73,7 @@ class Marble(object):
 
         sys.stderr.write("\n")
 
-    def _process_gold_standard(self):
+    def process_gold_standard(self):
         # set correct_similar for all artists
         for (i,artist) in enumerate(self.artists):
             try:
@@ -76,9 +82,6 @@ class Marble(object):
                 continue
 
     def construct_target(self):
-        # first process the gold standard
-        self._process_gold_standard()
-
         # and then construct the y target matrix
         self.target = np.zeros((len(self.artists),len(self.artists)))
         for artist in self.artists:
@@ -87,8 +90,8 @@ class Marble(object):
 
     def extract_features(self):
         sys.stderr.write("Extracting features...")
-        extractor = FeatureExtractor()
-        self.m_features = extractor.extract(self.artists).toarray()
+        extractor = FeatureExtractor(self.conf,self.mode)
+        self.m_features = extractor.extract(self.artists)
         sys.stderr.write("\n")
 
     def calc_stats(self):
