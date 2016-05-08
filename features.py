@@ -1,5 +1,5 @@
 import numpy as np
-import re,operator 
+import re,operator,os,pickle 
 from scipy import sparse
 from sklearn.feature_extraction.text import CountVectorizer
 from nltk.corpus import cmudict
@@ -8,7 +8,10 @@ from nltk.corpus import wordnet as wn
 from collections import defaultdict
 
 class FeatureExtractor(object):
-    def __init__(self):
+    def __init__(self,conf,mode="train"):
+        self.paths = conf["paths"]
+        self.mode = mode
+
         self._cmudict = cmudict.dict()
         self._cmuwords = cmudict.words()
 
@@ -58,9 +61,22 @@ class FeatureExtractor(object):
         return sparse.hstack((v_counts, v_syllables_per_line, v_syllables_per_verse, v_drawn_out, v_parentheses, v_length_words, v_slang))
 
     def counts(self,artists):
-        data = map(lambda artist: artist.all_songs_text(), artists)
-        vectorizer = CountVectorizer(ngram_range=(1,2),stop_words='english',max_features=10**4)
-        return vectorizer.fit_transform(data)
+        if self.mode == "test":
+            # load the vectorizer from file
+            with open(os.path.join(conf["dir"],conf["counts"])) as f:
+                vectorizer = pickle.load(f)
+        else:
+            # fit the vectorizer on our data
+            data = map(lambda artist: artist.all_songs_text(), artists)
+            vectorizer = CountVectorizer(ngram_range=(1,2),stop_words='english',max_features=10**4)
+            vectorizer.fit(data)
+
+            # and save it to file
+            with open(os.path.join(conf["dir"],conf["counts"]),"w") as f:
+                pickle.dump(vectorizer,f)
+
+        # return transformation
+        return vectorizer.transform(data)
 
     """
     Count the average number of syllables per line in the artist's music
