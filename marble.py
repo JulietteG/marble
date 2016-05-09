@@ -9,6 +9,17 @@ from models import Artist
 from util import progress,NoArtistWithNameError
 
 class Marble(object):
+    """
+    Marble is the superclass for all training / testing scripts and includes the following
+    functionality:
+
+    - load_artists: load the artists and their lyrics from file
+    - load_sim: load the similarity relationships between artists
+    - process_gold_standard: label artists in the gold standard from the similarity database
+    - construct_target: construct the target matrix used in MLP classification
+    - extract_features: extract the features for the artists
+    - calc_stats: calculate statistics on the predicted results
+    """
     def __init__(self,conf,mode,verbose=False,max_artists=sys.maxint):
         self.conf = conf 
         self.mode = mode 
@@ -28,18 +39,24 @@ class Marble(object):
         self.extract_features()
 
     def load_artists(self,max_artists=sys.maxint):
+        """
+        Load the artists and their lyrics from the corresponding files
+        """
         sys.stderr.write("Loading artists...")
 
         self.artists = []
         
+        # grab the lyrics root from the conf dictionary
         root = self.conf["root"][self.mode]
 
+        # iterate through the lyrics root
         for (i,(dirpath, dirnames, filenames)) in enumerate(os.walk(root)):
 
             if dirpath != root:
                 progress(i)
-                artist = Artist(dirpath)
 
+                #construct the artist and append it to the list
+                artist = Artist(dirpath)
                 self.artists.append(artist)
 
         sys.stderr.write("\n")
@@ -50,6 +67,9 @@ class Marble(object):
             self.artists = random.sample(self.artists,max_artists)
 
     def _set_artist_ids(self):
+        """
+        Set the artist ids incrementally, after the artists have been filtered.
+        """
         self.id_to_artist = {}
 
         _id = 0
@@ -59,6 +79,9 @@ class Marble(object):
             _id += 1
 
     def load_sim(self):
+        """
+        Load artist similarity relationships from the database
+        """
         sys.stderr.write("Loading similarity database...")
 
         # set up sim db
@@ -74,6 +97,9 @@ class Marble(object):
         sys.stderr.write("\n")
 
     def process_gold_standard(self):
+        """
+        Set the correct similar relationship for all artists
+        """
         # set correct_similar for all artists
         for (i,artist) in enumerate(self.artists):
             try:
@@ -82,6 +108,9 @@ class Marble(object):
                 continue
 
     def construct_target(self):
+        """
+        Construct the target matrix used in MLP classification
+        """
         # and then construct the y target matrix
         self.target = np.zeros((len(self.artists),len(self.artists)))
         for artist in self.artists:
@@ -89,10 +118,16 @@ class Marble(object):
                 self.target[artist._id,simil_id] = 1
 
     def extract_features(self):
+        """
+        Extract features from the artists in the dataset
+        """
         extractor = FeatureExtractor(self.conf,self.mode)
         self.m_features = extractor.extract(self.artists)
 
     def calc_stats(self):
+        """
+        Calculate statistics based on the predicted similarity relationships
+        """
 
         sys.stderr.write("Calculating statistics...\n")
 
