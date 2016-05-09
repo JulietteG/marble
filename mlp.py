@@ -18,13 +18,13 @@ class MLPMarble(Marble):
         self.clf.fit(self.m_features,self.target)
         sys.stderr.write("\n")
         
-        with open(os.path.join(self.conf["dir"],self.conf["mlp"]),"w") as f:
+        with open(os.path.join(self.conf["paths"]["dir"],self.conf["paths"]["mlp"]),"w") as f:
             pickle.dump(self.clf,f)
         
         self.predict()
 
     def test(self):
-        with open(os.path.join(self.conf["dir"],self.conf["mlp"])) as f:
+        with open(os.path.join(self.conf["paths"]["dir"],self.conf["paths"]["mlp"])) as f:
             self.clf = pickle.load(f)
         
         self.predict()

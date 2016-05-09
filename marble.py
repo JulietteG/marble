@@ -89,10 +89,8 @@ class Marble(object):
                 self.target[artist._id,simil_id] = 1
 
     def extract_features(self):
-        sys.stderr.write("Extracting features...")
         extractor = FeatureExtractor(self.conf,self.mode)
         self.m_features = extractor.extract(self.artists)
-        sys.stderr.write("\n")
 
     def calc_stats(self):
 

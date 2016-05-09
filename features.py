@@ -49,6 +49,8 @@ class FeatureExtractor(object):
 
     def extract(self,artists):
 
+        sys.stderr.write("Extracting features...")
+
         # calculate the various feature sets
         v_counts = self.counts(artists)
         v_syllables_per_line = self.syllables_per_line(artists)
@@ -64,24 +66,29 @@ class FeatureExtractor(object):
         hstack = sparse.hstack((v_counts, v_syllables_per_line, v_syllables_per_verse, v_drawn_out, v_parentheses, v_length_words, v_slang))
         self.m_features = hstack.toarray()
 
+        sys.stderr.write("\n")
+
         # perform PCA as appropriate
         self.pca()
 
         return self.m_features
 
     def counts(self,artists):
+        
+        # grab the data (text of all the songs)
+        data = map(lambda artist: artist.all_songs_text(), artists)
+
         if self.mode == "test":
             # load the vectorizer from file
-            with open(os.path.join(conf["dir"],conf["counts"])) as f:
+            with open(os.path.join(self.paths["dir"],self.paths["counts"])) as f:
                 vectorizer = pickle.load(f)
         else:
             # fit the vectorizer on our data
-            data = map(lambda artist: artist.all_songs_text(), artists)
             vectorizer = CountVectorizer(ngram_range=(1,2),stop_words='english',max_features=10**4)
             vectorizer.fit(data)
 
             # and save it to file
-            with open(os.path.join(conf["dir"],conf["counts"]),"w") as f:
+            with open(os.path.join(self.paths["dir"],self.paths["counts"]),"w") as f:
                 pickle.dump(vectorizer,f)
 
         # return transformation
@@ -265,12 +272,15 @@ class FeatureExtractor(object):
        
         if self.mode == "test":
             # load the PCA from file
-            with open(os.path.join(conf["dir"],conf["pca"])) as f:
+            with open(os.path.join(self.paths["dir"],self.paths["pca"])) as f:
                 pca = pickle.load(f)
         else:
             # construct and fit the PCA
             pca = PCA(n_components=self.n_pca_components)
             pca.fit(self.m_features)
+
+            with open(os.path.join(self.paths["dir"],self.paths["pca"]), "w") as f:
+                pickle.dump(pca,f)
 
         self.m_features = pca.transform(self.m_features)
         sys.stderr.write("\n")
