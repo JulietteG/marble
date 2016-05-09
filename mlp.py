@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import sys,json,os
+import sys,json,os,pickle
 import numpy as np
 from marble import Marble
 from optparse import OptionParser
@@ -11,13 +11,25 @@ class MLPMarble(Marble):
         # initialize the superclass
         Marble.__init__(self,conf,mode,verbose,max_artists)
 
-        self.clf = MLPClassifier(hidden_layer_sizes=tuple(conf["hidden_layer_sizes"]),max_iter=conf["max_iter"])
+        self.clf = MLPClassifier(hidden_layer_sizes=tuple(self.conf["mlp"]["hidden_layer_sizes"]),max_iter=self.conf["mlp"]["max_iter"])
 
-    def train(self,model_file):
+    def train(self):
         sys.stderr.write("Training Multi-layer Perceptron classifier...")
         self.clf.fit(self.m_features,self.target)
         sys.stderr.write("\n")
+        
+        with open(os.path.join(self.conf["dir"],self.conf["mlp"]),"w") as f:
+            pickle.dump(self.clf,f)
+        
+        self.predict()
 
+    def test(self):
+        with open(os.path.join(self.conf["dir"],self.conf["mlp"])) as f:
+            self.clf = pickle.load(f)
+        
+        self.predict()
+
+    def predict(self):
         sys.stderr.write("Calculating MLP Predictions...")
         for artist in self.artists:
             predicted_similar = self.clf.predict(self.m_features[artist._id].reshape(1,-1))
@@ -28,24 +40,15 @@ class MLPMarble(Marble):
 
         self.calc_stats()
 
-        sys.stderr.write("Writing decision function to file...")
-        np.save(model_file,self.clf.decision_function(self.m_features))
-        sys.stderr.write("\n")
-
-    def test(self,model_file):
-        decision_function = np.load(model_file)
-
-
-
 if __name__ == '__main__':
 
-    parser = OptionParser(usage="usage: mlp.py <train|test> [options]")
+    parser = OptionParser(usage="usage: prog <train|test> [options]")
     parser.add_option("-v", "--verbose",
                       action="store_true", dest="verbose", default=False,
                       help="print status messages to stdout")
     parser.add_option("-a", "--artists", dest="max_artists", type='int', default=sys.maxint,
                       help="number of artists to run")
-    parser.add_option("-c", "--conf", dest="conf", default="conf/mlp.json",
+    parser.add_option("-c", "--conf", dest="conf", default="conf.json",
             help="location of the mlp json config file, specifying model parameters")
 
     (options, args) = parser.parse_args()
@@ -69,18 +72,12 @@ if __name__ == '__main__':
         conf = json.load(f)
         sys.stderr.write("Using parameters: " + str(conf) + "\n")
 
-    # make the training directory if it does not already exist
-    if mode == "train" and not os.path.isdir(os.path.dirname(options.model_name)):
-        os.mkdir(os.path.dirname(options.model_name))
-
-    # open the model file
-    with open(options.model_name,("w" if mode == "train" else "r")) as model_file:
-        sys.stderr.write("Model file: " + options.model_name + "\n")
-
-        d = MLPMarble(options.lyrics_root,conf,verbose=options.verbose,max_artists=options.max_artists)
+        # construct the marble
+        d = MLPMarble(conf,mode,verbose=options.verbose,max_artists=options.max_artists)
         
+        # test / train as appropriate
         if mode == "train":
-            d.train(model_file)
+            d.train()
         else:
-            d.test(model_file)
+            d.test()
 

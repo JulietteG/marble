@@ -14,7 +14,8 @@
     "paths":{
         "dir":"var/",
         "counts":"counts",
-        "pca":"pca"
+        "pca":"pca",
+        "mlp":"mlp"
     },
     "root":{
         "test":"lyrics/test",
