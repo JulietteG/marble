@@ -60,11 +60,11 @@ class FeatureExtractor(object):
         v_parentheses = self.parentheses(artists)
         v_length_words = self.length_words(artists)
         v_slang = self.slang(artists)
-        #v_pronunciation = self.pronunciation(artists)
-        #v_wordnet = self.wordnet_relations(artists)
+        v_pronunciation = self.pronunciation(artists)
+        v_wordnet = self.wordnet_relations(artists)
         
         # hstack features together
-        hstack = sparse.hstack((v_counts, v_syllables_per_line, v_syllables_per_verse, v_drawn_out, v_parentheses, v_length_words, v_slang))
+        hstack = sparse.hstack((v_counts, v_syllables_per_line, v_syllables_per_verse, v_drawn_out, v_parentheses, v_length_words, v_slang, v_pronunciation, v_wordnet))
         self.m_features = hstack.toarray()
 
         sys.stderr.write("\n")
