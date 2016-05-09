@@ -5,6 +5,7 @@ from marble import Marble
 from optparse import OptionParser
 
 from sklearn.neural_network import MLPClassifier
+from sklearn.neighbors import NearestNeighbors
 
 class MLPMarble(Marble):
     def __init__(self,conf,mode="train",verbose=False,max_artists=sys.maxint):
@@ -12,6 +13,7 @@ class MLPMarble(Marble):
         Marble.__init__(self,conf,mode,verbose,max_artists)
 
         self.clf = MLPClassifier(hidden_layer_sizes=tuple(self.conf["mlp"]["hidden_layer_sizes"]),max_iter=self.conf["mlp"]["max_iter"])
+        self.neigh = NearestNeighbors(n_neighbors=self.conf["mlp"]["neighbors"],metric=self.conf["mlp"]["metric"])
 
     def train(self):
         sys.stderr.write("Training Multi-layer Perceptron classifier...")
@@ -27,7 +29,21 @@ class MLPMarble(Marble):
         with open(os.path.join(self.conf["paths"]["dir"],self.conf["paths"]["mlp"])) as f:
             self.clf = pickle.load(f)
         
-        self.predict()
+        weight_m = self.clf.coefs_[0]
+
+        artist_vectors = []
+        for i in xrange(len(self.artists)):
+            feature_v = self.m_features[i]
+            artist_v = np.dot(weight_m,feature_v)
+            artist_vectors.append(artist_v)
+
+        self.neigh.fit(artist_vectors)
+
+        for (i,artist_v) in enumerate(artist_vectors):
+            (_,ind) = self.neigh.kneighbors(artist_v.reshape(1,-1))
+            self.artists[i].predicted_similar = ind[0]
+
+        self.calc_stats()
 
     def predict(self):
         sys.stderr.write("Calculating MLP Predictions...")
