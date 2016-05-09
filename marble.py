@@ -4,7 +4,6 @@ from exceptions import NotImplementedError
 
 from similarity import Similarity
 from features import FeatureExtractor
-from pca import pca
 from models import Artist
 from util import progress,NoArtistWithNameError
 
