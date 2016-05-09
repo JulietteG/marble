@@ -1,5 +1,4 @@
 *.swp
 *.pyc
-data/
-out/
+data/artist_similarity.db
 .DS_Store

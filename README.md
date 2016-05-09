@@ -16,7 +16,7 @@ pip install -r requirements.txt
 
 installs the necessary dependencies (and the correct versions thereof).
 
-MARBLE uses `sklearn.neural_network.MLPClassifier`. For now, this unfortunately requires installing the most recent development version of sci-kit learn. Instructions following in the subsequent section.
+MARBLE uses `sklearn.neural_network.MLPClassifier`. For now, this unfortunately requires installing the most recent development version of sci-kit learn. Instructions follow in the subsequent section.
 
 ### Installing scikit-learn development version
 
@@ -50,6 +50,14 @@ sudo python setup.py install
 For more detailed installation instructions,
 see the web page [http://scikit-learn.org/stable/install.html](http://scikit-learn.org/stable/install.html).
 
+### Downloading the Data
+
+All lyrics have already been downloaded, saved in the `lyrics/` folder, and split into `train/` and `test/` samples, with a test size of 40%.
+
+The `unique_artist.txt` file mapping artist names to ids has been downloaded and saved in the `data/` directory.
+
+Therefore, the only file you must download is `data/artist_similarity.db`, which is ~ 330MB. `artist_similarity.db` can be downloaded from [http://labrosa.ee.columbia.edu/millionsong/pages/getting-dataset](http://labrosa.ee.columbia.edu/millionsong/pages/getting-dataset) or directly via the the link [http://labrosa.ee.columbia.edu/millionsong/pages/getting-dataset](http://labrosa.ee.columbia.edu/millionsong/pages/getting-dataset).
+
 ## Usage
 
 The complete and final model sources from `mlp.py`. To run:
@@ -58,7 +66,7 @@ The complete and final model sources from `mlp.py`. To run:
 ./mlp.py <train|test> [options]
 ```
 
-where "train" will run the training program and "test" will run the testing program. Not that model files must exist for the training program to run run.
+where "train" will run the training program and "test" will run the testing program. Note that model files must exist for the training program to run run.
 
 The command-line options are:
 
