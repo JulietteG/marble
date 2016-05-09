@@ -17,7 +17,8 @@
         "dir":"var/",
         "counts":"counts",
         "pca":"pca",
-        "mlp":"mlp"
+        "mlp":"mlp",
+        "scaler":"scaler"
     },
     "root":{
         "test":"lyrics/test",

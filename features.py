@@ -3,6 +3,7 @@ import re,operator,sys,os,pickle
 from scipy import sparse
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
 from nltk.corpus import cmudict
 from curses.ascii import isdigit
 from nltk.corpus import wordnet as wn
@@ -70,6 +71,9 @@ class FeatureExtractor(object):
 
         # perform PCA as appropriate
         self.pca()
+
+        # and scale the feature vectors
+        self.scale()
 
         return self.m_features
 
@@ -285,3 +289,27 @@ class FeatureExtractor(object):
         self.m_features = pca.transform(self.m_features)
         sys.stderr.write("\n")
 
+    def scale(self):
+        """
+        Scale each attribute on an artist's feature vector to between [-1,+1]
+        with mean 0 and variance 1
+        """
+
+        sys.stderr.write("Scaling the feature vectors...")
+
+        if self.mode == "test":
+            # load the scaler from file
+            with open(os.path.join(self.paths["dir"],self.paths["scaler"])) as f:
+                scaler = pickle.load(f)
+        
+        else:
+            # construct and fit a new scaler
+            scaler = StandardScaler()
+            scaler.fit(self.m_features)
+
+            with open(os.path.join(self.paths["dir"],self.paths["scaler"]),"w") as f:
+                pickle.dump(scaler,f)
+
+        # scale the features
+        self.m_features = scaler.transform(self.m_features)
+        sys.stderr.write("\n")
