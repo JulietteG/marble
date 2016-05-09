@@ -56,7 +56,7 @@ All lyrics have already been downloaded, saved in the `lyrics/` folder, and spli
 
 The `unique_artist.txt` file mapping artist names to ids has been downloaded and saved in the `data/` directory.
 
-Therefore, the only file you must download is `data/artist_similarity.db`, which is ~ 330MB. `artist_similarity.db` can be downloaded from [http://labrosa.ee.columbia.edu/millionsong/pages/getting-dataset](http://labrosa.ee.columbia.edu/millionsong/pages/getting-dataset) or directly via the the link [http://labrosa.ee.columbia.edu/millionsong/pages/getting-dataset](http://labrosa.ee.columbia.edu/millionsong/pages/getting-dataset).
+Therefore, the only file you must download is `data/artist_similarity.db`, which is ~ 330MB. `artist_similarity.db` can be downloaded from [http://labrosa.ee.columbia.edu/millionsong/pages/getting-dataset](http://labrosa.ee.columbia.edu/millionsong/pages/getting-dataset) or directly via the the link [http://www.ee.columbia.edu/~thierry/artist_similarity.db](http://www.ee.columbia.edu/~thierry/artist_similarity.db).
 
 ## Usage
 
