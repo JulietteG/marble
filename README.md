@@ -90,21 +90,50 @@ $ ./mlp.py test
 
 ## Structure
 
-The default directory structure is as follows:
+The default structure is as follows:
 
 ```
 .
+├── README.md
+├── conf.json
 ├── data
-├── lyrics
+│   ├── lyrics
+│   │   ├── test
+│   │   └── train
+│   └── sim
+│       ├── artist_similarity.db
+│       └── unique_artists.txt
+├── em.py
+├── features.py
+├── marble.py
+├── mlp.py
 ├── models
+│   ├── __init__.py
+│   ├── artist.py
+│   └── song.py
 ├── play
+│   ├── regex.py
+│   ├── syllabify.py
+│   └── wordnet.py
+├── requirements.txt
 ├── scrape
-├── util
-└── var
+│   ├── azlyrics_scrape.py
+│   └── lyrics_scrape.py
+├── similarity.py
+├── stats.py
+└── util
+    ├── __init__.py
+    ├── mexceptions.py
+    ├── progress.py
+    └── split.py
+
+9 directories, 23 files
 ```
 
-- the `data/` directory contains the `artist_similarity.db` and `unique_artist.txt` files used to extract gold standard similarity relationships
-- the `lyrics/` directory contains lyrics on which the model runs, as divided into `train/` and `test/` directories
+The purpose of the directories is as follows:
+
+- the `data/lyrics/` directory contains lyrics on which the model runs, as divided into `train/` and `test/` directories
+- the `data/sim/` directory contains the `artist_similarity.db` and `unique_artist.txt` files used to extract gold standard similarity relationships
 - the `models/` directory contains simple `Artist` and `Song` class definitions for representing artists and songs in memory
 - the `play/` directory contains some trivial scripts used to test feature implementations
 - the `scrape/` directory contains the scrapers used to download lyrics
