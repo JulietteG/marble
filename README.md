@@ -52,11 +52,11 @@ see the web page [http://scikit-learn.org/stable/install.html](http://scikit-lea
 
 ### Downloading the Data
 
-All lyrics have already been downloaded, saved in the `lyrics/` folder, and split into `train/` and `test/` samples, with a test size of 40%.
+All lyrics have already been downloaded, saved in the `data/lyrics/` folder, and split into `train/` and `test/` samples, with a test size of 40%.
 
-The `unique_artist.txt` file mapping artist names to ids has been downloaded and saved in the `data/` directory.
+The `unique_artist.txt` file mapping artist names to ids has been downloaded and saved in the `data/sim/` directory.
 
-Therefore, the only file you must download is `data/artist_similarity.db`, which is ~ 330MB. `artist_similarity.db` can be downloaded from [http://labrosa.ee.columbia.edu/millionsong/pages/getting-dataset](http://labrosa.ee.columbia.edu/millionsong/pages/getting-dataset) or directly via the the link [http://www.ee.columbia.edu/~thierry/artist_similarity.db](http://www.ee.columbia.edu/~thierry/artist_similarity.db).
+Therefore, the only file you must download is `data/sim/artist_similarity.db`, which is ~ 330MB. `artist_similarity.db` can be downloaded from [http://labrosa.ee.columbia.edu/millionsong/pages/getting-dataset](http://labrosa.ee.columbia.edu/millionsong/pages/getting-dataset) or directly via the the link [http://www.ee.columbia.edu/~thierry/artist_similarity.db](http://www.ee.columbia.edu/~thierry/artist_similarity.db).
 
 ## Usage
 
