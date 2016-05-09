@@ -74,8 +74,6 @@ class MLPMarble(Marble):
 
         self.calc_stats()
 
-    def predict(self):
-
 if __name__ == '__main__':
 
     parser = OptionParser(usage="usage: prog <train|test> [options]")

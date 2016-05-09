@@ -112,7 +112,7 @@ class FeatureExtractor(object):
         # return transformation
         return vectorizer.transform(data)
 
-   def syllables_per_line(self,artists):
+    def syllables_per_line(self,artists):
         """
         Count the average number of syllables per line in the artist's music
         """
@@ -173,7 +173,7 @@ class FeatureExtractor(object):
         # convert syllables_verse_vector to a sparse matrix
         return sparse.coo_matrix(syllables_verse_vector)
 
-   def drawn_out(self,artists):
+    def drawn_out(self,artists):
         """
         Detect drawn-out words
         """
