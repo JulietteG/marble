@@ -10,6 +10,14 @@ from nltk.corpus import wordnet as wn
 from collections import defaultdict
 
 class FeatureExtractor(object):
+    """
+    As the name suggests, the FeatureExtractor handles the extraction of features
+    from a set of artists. After extracting features, the extractor then proceeds
+    to run PCA and StandardScaler to normalize the obtained feature vectors
+    
+    If we are in testing mode, the appropriate counts, pca, scaler models will
+    be loaded from file.
+    """
     def __init__(self,conf,mode="train"):
         self.paths = conf["paths"]
         self.n_pca_components = (conf["pca"] if "pca" in conf else sys.maxint)
@@ -49,6 +57,9 @@ class FeatureExtractor(object):
         self.NUM_OF_SYNSETS = len(self.my_synsets)
 
     def extract(self,artists):
+        """
+        Extract features for the artists
+        """
 
         sys.stderr.write("Extracting features...")
 
@@ -78,6 +89,9 @@ class FeatureExtractor(object):
         return self.m_features
 
     def counts(self,artists):
+        """
+        Extract unigram, bigram counts
+        """
         
         # grab the data (text of all the songs)
         data = map(lambda artist: artist.all_songs_text(), artists)
@@ -98,10 +112,10 @@ class FeatureExtractor(object):
         # return transformation
         return vectorizer.transform(data)
 
-    """
-    Count the average number of syllables per line in the artist's music
-    """
-    def syllables_per_line(self,artists):
+   def syllables_per_line(self,artists):
+        """
+        Count the average number of syllables per line in the artist's music
+        """
         syllables_vector = np.zeros((len(artists),1))
         for (i,artist) in enumerate(artists):
             lines = artist.all_songs_lines()
@@ -127,10 +141,11 @@ class FeatureExtractor(object):
         # convert syllables_vector to a sparse matrix
         return sparse.coo_matrix(syllables_vector)
 
-    """
-    Count the average number of syllables per verse in the artist's music
-    """
+
     def syllables_per_verse(self,artists):
+        """
+        Count the average number of syllables per verse in the artist's music
+        """
         syllables_verse_vector = np.zeros((len(artists),1))
         for (i,artist) in enumerate(artists):
             lines = artist.all_songs_lines()
@@ -158,10 +173,10 @@ class FeatureExtractor(object):
         # convert syllables_verse_vector to a sparse matrix
         return sparse.coo_matrix(syllables_verse_vector)
 
-    """
-    Detect drawn-out words
-    """
-    def drawn_out(self,artists):
+   def drawn_out(self,artists):
+        """
+        Detect drawn-out words
+        """
         drawn_vector = np.zeros((len(artists),1))
         for (i,artist) in enumerate(artists):
             lyrics = artist.all_songs_text()
@@ -174,10 +189,10 @@ class FeatureExtractor(object):
         # convert drawn_vector to a sparse matrix
         return sparse.coo_matrix(drawn_vector)
 
-    """
-    Detect parentheses (indicating background music)
-    """
     def parentheses(self,artists):
+        """
+        Detect parentheses (indicating background music)
+        """
         parens_vector = np.zeros((len(artists),1))
         for (i,artist) in enumerate(artists):
             lyrics = artist.all_songs_text()
@@ -190,10 +205,10 @@ class FeatureExtractor(object):
         # convert parens_vector to a sparse matrix
         return sparse.coo_matrix(parens_vector)
 
-    """
-    Count the average length (in words) of songs for each artist
-    """
     def length_words(self,artists):
+        """
+        Count the average length (in words) of songs for each artist
+        """
         lengths_vector = np.zeros((len(artists),1))
         for (i,artist) in enumerate(artists):
             song_lengths = []
@@ -207,10 +222,10 @@ class FeatureExtractor(object):
         
         return sparse.coo_matrix(lengths_vector)
 
-    """
-    Number of slang words in artist's songs
-    """
     def slang(self,artists):
+        """
+        Number of slang words in artist's songs
+        """
         slang_vector = np.zeros((len(artists),1))
         for (i,artist) in enumerate(artists):
             songs_text = artist.all_songs_text()
@@ -224,6 +239,9 @@ class FeatureExtractor(object):
         return sparse.coo_matrix(slang_vector)
 
     def pronunciation(self,artists):
+        """
+        Extract counts of common phonemes in the artist's songs
+        """
         pronunciation_vector = np.zeros((len(artists),self.NUM_OF_PHONEMES))
 
         for (i,artist) in enumerate(artists):
@@ -239,11 +257,15 @@ class FeatureExtractor(object):
         return sparse.coo_matrix(pronunciation_vector)
 
     def wordnet_relations(self,artists):
+        """
+        Extract path similarity to pre-defined synsets.
+        """
         wordnet_vector = np.zeros((len(artists),self.NUM_OF_SYNSETS))
 
         for (i,artist) in enumerate(artists):
             word_dict = defaultdict(int)
 
+            # strip punctuation and common words
             for word in artist.all_songs_text().split():
                 word = word.strip(",.'-?!;:()")
                 word = word.lower()
@@ -252,9 +274,11 @@ class FeatureExtractor(object):
                 else:
                     word_dict[word] += 1
 
+            # sort the dictionary
             sorted_dict = sorted(word_dict.items(), key=operator.itemgetter(1), reverse = True)
             sorted_dict = sorted_dict[15:50]
 
+            # and find path similarities
             for word in sorted_dict:
                 for j, synset in enumerate(self.my_synsets):
                     synword = wn.synsets(word[0])
