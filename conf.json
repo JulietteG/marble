@@ -20,8 +20,12 @@
         "mlp":"mlp",
         "scaler":"scaler"
     },
-    "root":{
-        "test":"lyrics/test",
-        "train":"lyrics/train"
+    "lyrics_root":{
+        "test":"data/lyrics/test",
+        "train":"data/lyrics/train"
+    },
+    "sim_root":{
+        "unique_artists.txt":"data/sim/unique_artists.txt",
+        "artist_similarity.db":"data/sim/artist_similarity.db"
     }
 }

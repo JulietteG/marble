@@ -69,7 +69,7 @@ url = 'http://www.lyrics.com/artists/start/'
 
 artists = []
 
-ROOT = "lyrics/"
+ROOT = "data/lyrics/"
 
 if not os.path.isdir(ROOT):
     os.mkdir(ROOT)

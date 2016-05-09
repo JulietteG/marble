@@ -47,7 +47,7 @@ class Marble(object):
         self.artists = []
         
         # grab the lyrics root from the conf dictionary
-        root = self.conf["root"][self.mode]
+        root = self.conf["lyrics_root"][self.mode]
 
         # iterate through the lyrics root
         for (i,(dirpath, dirnames, filenames)) in enumerate(os.walk(root)):
@@ -85,7 +85,7 @@ class Marble(object):
         sys.stderr.write("Loading similarity database...")
 
         # set up sim db
-        self.sim = Similarity(self.artists)
+        self.sim = Similarity(self.conf,self.artists)
 
         # figure out who is in the database
         self.artists = self.sim.whos_in_db()

@@ -2,13 +2,13 @@ import sqlite3 as lite
 import sys
 from util import NoArtistWithNameError
 
-filename = "data/unique_artists.txt"
-
 class Similarity(object):
-	def __init__(self,artist_objs):
-		self.artist_objs = artist_objs
+	def __init__(self,conf,artist_objs):
+	
+                self.artist_objs = artist_objs
+                self.sim_db_name = conf["sim_root"]["artist_similarity.db"]
 
-		with open(filename, 'r') as fp:
+		with open(conf["sim_root"]["unique_artists.txt"], 'r') as fp:
 			contents = fp.read().split('\n')
 
 		self.artist_name_to_db_id = {}
@@ -40,7 +40,7 @@ class Similarity(object):
 		Returns a list of object ids of artists who are similar to artist with artist_id 
 		"""
 
-		with lite.connect('data/artist_similarity.db') as conn:
+		with lite.connect(self.sim_db_name) as conn:
 			cur = conn.cursor()
 
 			try:
