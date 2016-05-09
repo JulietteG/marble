@@ -286,6 +286,7 @@ class FeatureExtractor(object):
             with open(os.path.join(self.paths["dir"],self.paths["pca"]), "w") as f:
                 pickle.dump(pca,f)
 
+        sys.stderr.write(" explained_variance = " + str(np.sum(pca.explained_variance_ratio_)))
         self.m_features = pca.transform(self.m_features)
         sys.stderr.write("\n")
 
