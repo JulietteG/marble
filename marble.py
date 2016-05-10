@@ -130,16 +130,22 @@ class Marble(object):
 
         sys.stderr.write("Calculating statistics...\n")
 
-        num_correct,gold,precision,recall = [],[],[],[]
+        num_correct,num_predicted,num_gold = [],[],[]
         for artist in self.artists:
             num_correct.append(artist.num_correct(self.id_to_artist,verbose=self.verbose))
-            # precision.append(artist.precision())
-            # recall.append(artist.recall())
-            gold.append(len(artist.correct_similar))
+            num_predicted.append(len(artist.predicted_similar))
+            num_gold.append(len(artist.correct_similar))
 
-        print "\tCorrect:", sum(num_correct), "/", sum(gold)
-        # print "avg precision:", np.average(precision)
-        # print "avg recall:", np.average(recall)
+        # sum and calculate precision, recall, f1-score
+        correct,predicted,gold = sum(num_correct),sum(num_predicted),sum(num_gold)
+        precision = float(correct) / float(predicted)
+        recall = float(correct) / float(gold)
+        fscore = 2 * (precision * recall) / (precision + recall)
+        
+        # print out the results
+        sys.stderr.write("\tPrecision: " + str(correct) + " / " + str(predicted) + " = " + str(precision) + "\n")
+        sys.stderr.write("\tRecall: " + str(correct) + " / " + str(gold) + " = " + str(recall) + "\n")
+        sys.stderr.write("\tF-score: " + str(fscore) + "\n") 
 
     def train(self):
         raise NotImplementedError("Marble.train must be overriden in subclass")

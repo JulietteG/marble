@@ -70,20 +70,3 @@ class Artist(object):
                 num += 1
         return num
 
-    def precision(self):
-        """
-        precision for this particular artist 
-        """
-        if len(self.predicted_similar) > 0:
-            return float(self.num_correct()) / float(len(self.predicted_similar))
-        else:
-            return 1.0
-
-    def recall(self):
-        """
-        recall for this particular artist 
-        """
-        if len(self.correct_similar) > 0:
-            return float(self.num_correct()) / float(len(self.correct_similar))
-        else:
-            return 1.0

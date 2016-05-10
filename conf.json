@@ -6,7 +6,7 @@
     "em":{
         "iter": 10,
         "neighbors": 100,
-        "metric": "minkowski"
+        "metric": "manhattan"
     },
     "mlp":{
         "max_iter": 1000,
@@ -14,7 +14,7 @@
             100
         ],
         "neighbors": 100,
-        "metric": "minkowski"
+        "metric": "manhattan"
     },
     "paths":{
         "dir":"var/",
