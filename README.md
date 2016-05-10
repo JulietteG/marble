@@ -88,6 +88,22 @@ $ ./mlp.py train
 $ ./mlp.py test
 ```
 
+The two alternative (old) models can also still be run and evaluated:
+
+```
+$ ./kmeans.py train
+```
+
+runs the KMeans algorithm and
+
+```
+$ ./em.py train
+```
+
+runs the supervised E/M algorithm.
+
+Note that neither KMeans, nor E/M have implemented `test` methods.
+
 ## Structure
 
 The default structure is as follows:
@@ -105,9 +121,9 @@ The default structure is as follows:
 │       └── unique_artists.txt
 ├── em.py
 ├── features.py
-├── features.pyc
+├── kmeans.py
+├── main.py
 ├── marble.py
-├── marble.pyc
 ├── mlp.py
 ├── models
 │   ├── __init__.py
@@ -122,7 +138,6 @@ The default structure is as follows:
 │   ├── azlyrics_scrape.py
 │   └── lyrics_scrape.py
 ├── similarity.py
-├── similarity.pyc
 ├── stats.py
 ├── util
 │   ├── __init__.py
@@ -132,7 +147,7 @@ The default structure is as follows:
 │   └── verify.py
 └── var
 
-10 directories, 27 files
+10 directories, 26 files
 ```
 
 The purpose of the directories is as follows:
@@ -152,6 +167,7 @@ Diving into the contents of each file:
 | `conf.json` | | the default configuration parameters for the models proposed |
 | `em.py` | `EMMarble` | definition of the old E/M supervised learning model |
 | `features.py` | `FeatureExtractor` | manages the extraction of all features |
+| `kmeans.py` | `KMeansMarble` | definition of the old KMeans unsupervised learning model |
 | `marble. py` | `Marble` | superclass to manage dataset processing |
 | `mlp.py` | `MLPMarble` | definition of the MLP supervised learning model |
 | `scrape/azlyrics_scrape.py` | | attempts (but fails) to scrape azlyrics.com |
