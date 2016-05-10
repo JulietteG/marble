@@ -13,7 +13,7 @@ class EMMarble(Marble):
         Marble.__init__(self,root,conf,verbose,max_artists)
 
         self.initialize_weights()
-	self.em_iter = conf["em_iter"]
+        self.em_iter = conf["em_iter"]
 
         self.neigh = NearestNeighbors(n_neighbors=conf["neighbors"],metric=conf["metric"])
         
@@ -75,18 +75,18 @@ class EMMarble(Marble):
         sys.stderr.write("\n")
 
     def train(self):
-	for i in xrange(self.em_iter):
-	    sys.stderr.write("EM Iteration " + str(i + 1) + "\n")
+        for i in xrange(self.em_iter):
+            sys.stderr.write("EM Iteration " + str(i + 1) + "\n")
 
-	    X = self.calc_x()
-	    sys.stderr.write("\tFitting X...")
-	    self.neigh.fit(X)
-	    sys.stderr.write("\n")
+            X = self.calc_x()
+            sys.stderr.write("\tFitting X...")
+            self.neigh.fit(X)
+            sys.stderr.write("\n")
 
-	    self.find_neighbors(X)
-	    self.update_weights(X)
+            self.find_neighbors(X)
+            self.update_weights(X)
 
-	    self.calc_stats()
+            self.calc_stats()
 
     def test(self):
         pass
