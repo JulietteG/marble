@@ -58,7 +58,13 @@ All lyrics have already been downloaded, saved in the `data/lyrics/` folder, and
 
 The `unique_artist.txt` file mapping artist names to ids has been downloaded and saved in the `data/sim/` directory.
 
-Therefore, the only file you must download is `data/sim/artist_similarity.db`, which is ~ 330MB. `artist_similarity.db` can be downloaded from [http://labrosa.ee.columbia.edu/millionsong/pages/getting-dataset](http://labrosa.ee.columbia.edu/millionsong/pages/getting-dataset) or directly via the the link [http://www.ee.columbia.edu/~thierry/artist_similarity.db](http://www.ee.columbia.edu/~thierry/artist_similarity.db).
+Therefore, the only file you must download is `artist_similarity.db`, which is ~ 330MB. `artist_similarity.db` can be downloaded from [http://labrosa.ee.columbia.edu/millionsong/pages/getting-dataset](http://labrosa.ee.columbia.edu/millionsong/pages/getting-dataset) or directly via the the link [http://www.ee.columbia.edu/~thierry/artist_similarity.db](http://www.ee.columbia.edu/~thierry/artist_similarity.db). 
+
+After downloading, move the file to:
+
+```
+data/sim/artist_similarity.db
+```
 
 ## Usage
 
@@ -68,9 +74,11 @@ The complete and final model sources from `mlp.py`. To run:
 ./mlp.py <train|test> [options]
 ```
 
-where "train" will run the training program and "test" will run the testing program. Please ensure that the `var/` directory exists before trying to run the training program. Furthermore, all model files must exist for the testing program to run correctly. 
+where "train" will run the training program and "test" will run the testing program. Please ensure that the `var/` directory exists before trying to run the training program. Furthermore, all trained model files must exist for the testing program to run correctly. 
 
 These and other configuration parameters can be found in `config.json`.
+
+For the final submission, trained MLP models have been included in the `var/` directory, so that testing can be run without training, if desired.
 
 The command-line options are:
 
