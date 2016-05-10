@@ -104,6 +104,75 @@ runs the supervised E/M algorithm.
 
 Note that neither KMeans, nor E/M have implemented `test` methods.
 
+## Sample Output
+
+### MLP Training 
+
+After suppressing a few minor warnings, running `$ ./mlp.py train` yields the following output:
+
+```
+mode = train
+Using parameters from conf.json:
+{u'em': {u'iter': 10, u'metric': u'manhattan', u'neighbors': 100},
+ u'kmeans': {u'num_clusters': 100},
+ u'lyrics_root': {u'test': u'data/lyrics/test',
+                  u'train': u'data/lyrics/train'},
+ u'mlp': {u'hidden_layer_sizes': [100],
+          u'max_iter': 1000,
+          u'metric': u'manhattan',
+          u'neighbors': 100},
+ u'paths': {u'counts': u'counts',
+            u'dir': u'var/',
+            u'mlp': u'mlp',
+            u'pca': u'pca',
+            u'scaler': u'scaler'},
+ u'pca': 100,
+ u'sim_root': {u'artist_similarity.db': u'data/sim/artist_similarity.db',
+               u'unique_artists.txt': u'data/sim/unique_artists.txt'}}
+Loading artists..............................
+Loading similarity database...
+Extracting features...
+Principal component analysis... explained_variance = 0.99299086836
+Scaling the feature vectors...
+Training Multi-layer Perceptron classifier...
+Calculating MLP Predictions...
+Calculating statistics...
+	Precision: 11449 / 11461 = 0.998952970945
+	Recall: 11449 / 13302 = 0.860697639453
+	F-score: 0.924686023503
+```
+
+### MLP Testing
+
+```
+Using parameters from conf.json:
+{u'em': {u'iter': 10, u'metric': u'manhattan', u'neighbors': 100},
+ u'kmeans': {u'num_clusters': 100},
+ u'lyrics_root': {u'test': u'data/lyrics/test',
+                  u'train': u'data/lyrics/train'},
+ u'mlp': {u'hidden_layer_sizes': [100],
+          u'max_iter': 1000,
+          u'metric': u'manhattan',
+          u'neighbors': 100},
+ u'paths': {u'counts': u'counts',
+            u'dir': u'var/',
+            u'mlp': u'mlp',
+            u'pca': u'pca',
+            u'scaler': u'scaler'},
+ u'pca': 100,
+ u'sim_root': {u'artist_similarity.db': u'data/sim/artist_similarity.db',
+               u'unique_artists.txt': u'data/sim/unique_artists.txt'}}
+Loading artists.....................
+Loading similarity database...
+Extracting features...
+Principal component analysis... explained_variance = 0.99299086836
+Scaling the feature vectors...
+Calculating statistics...
+	Precision: 824 / 97500 = 0.00845128205128
+	Recall: 824 / 6042 = 0.136378682555
+	F-score: 0.0159162465473
+```
+
 ## Structure
 
 The default structure is as follows:
