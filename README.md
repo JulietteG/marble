@@ -144,6 +144,8 @@ Calculating statistics...
 
 ### MLP Testing
 
+Running `$ ./mlpy. test` yields:
+
 ```
 Using parameters from conf.json:
 {u'em': {u'iter': 10, u'metric': u'manhattan', u'neighbors': 100},
