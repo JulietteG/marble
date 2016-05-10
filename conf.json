@@ -1,5 +1,8 @@
 {
     "pca": 100,
+    "kmeans":{
+        "num_clusters":100
+    },
     "em":{
         "iter": 10,
         "neighbors": 100,

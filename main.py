@@ -1,6 +1,7 @@
 import sys,os,json
 from optparse import OptionParser
 from util import verify_paths
+from pprint import PrettyPrinter
 
 def main(cls):
     """
@@ -35,7 +36,13 @@ def main(cls):
     # open and parse the config file
     with open(options.conf) as f:
         conf = json.load(f)
-        sys.stderr.write("Using parameters: " + str(conf) + "\n")
+        
+        # construct a pretty printer
+        pp = PrettyPrinter(stream=sys.stderr)
+        
+        # log the parameters used
+        sys.stderr.write("Using parameters from " + options.conf + ":\n")
+        pp.pprint(conf)
 
         # Verify that all paths are valid
         verify_paths(conf["paths"],mode=mode)
