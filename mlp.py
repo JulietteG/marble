@@ -3,6 +3,7 @@ import sys,json,os,pickle
 import numpy as np
 from marble import Marble
 from optparse import OptionParser
+from util import verify_paths
 
 from sklearn.neural_network import MLPClassifier
 from sklearn.neighbors import NearestNeighbors
@@ -105,6 +106,9 @@ if __name__ == '__main__':
     with open(options.conf) as f:
         conf = json.load(f)
         sys.stderr.write("Using parameters: " + str(conf) + "\n")
+
+        # Verify that all paths are valid
+        verify_paths(conf["paths"],mode=mode)
 
         # construct the marble
         d = MLPMarble(conf,mode,verbose=options.verbose,max_artists=options.max_artists)
