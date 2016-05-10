@@ -168,6 +168,7 @@ Diving into the contents of each file:
 | `em.py` | `EMMarble` | definition of the old E/M supervised learning model |
 | `features.py` | `FeatureExtractor` | manages the extraction of all features |
 | `kmeans.py` | `KMeansMarble` | definition of the old KMeans unsupervised learning model |
+| `main.py` | | provides the main method used to parse command-line arguments for all Marble subclasses. |
 | `marble. py` | `Marble` | superclass to manage dataset processing |
 | `mlp.py` | `MLPMarble` | definition of the MLP supervised learning model |
 | `scrape/azlyrics_scrape.py` | | attempts (but fails) to scrape azlyrics.com |
