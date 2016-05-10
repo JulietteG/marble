@@ -105,7 +105,9 @@ The default structure is as follows:
 │       └── unique_artists.txt
 ├── em.py
 ├── features.py
+├── features.pyc
 ├── marble.py
+├── marble.pyc
 ├── mlp.py
 ├── models
 │   ├── __init__.py
@@ -120,14 +122,17 @@ The default structure is as follows:
 │   ├── azlyrics_scrape.py
 │   └── lyrics_scrape.py
 ├── similarity.py
+├── similarity.pyc
 ├── stats.py
-└── util
-    ├── __init__.py
-    ├── mexceptions.py
-    ├── progress.py
-    └── split.py
+├── util
+│   ├── __init__.py
+│   ├── mexceptions.py
+│   ├── progress.py
+│   ├── split.py
+│   └── verify.py
+└── var
 
-9 directories, 23 files
+10 directories, 27 files
 ```
 
 The purpose of the directories is as follows:
@@ -156,4 +161,5 @@ Diving into the contents of each file:
 | `util/mexceptions.py` | `NoArtistWithNameError` | a custom exception class |
 | `util/progress.py` | | quick utility to print progress |
 | `util/split.py` | | quick utility to split the dataset into train / test samples |
+| `util/verify.py` | | quick helper method to verify that conf paths exist |
 
