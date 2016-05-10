@@ -1,10 +1,11 @@
 # MARBLE: Musical Artist Recommendations Based on Lyrical Evidence
 
-This project is host of GitHub: [https://github.com/JulietteG/marble](https://github.com/JulietteG/marble).
+This project is hosted on GitHub: [https://github.com/JulietteG/marble](https://github.com/JulietteG/marble).
 
 ## Authors
 
-Juliette Grantham and Charlie Proctor
+- Juliette Grantham
+- Charlie Proctor
 
 ## Dependencies
 
