@@ -3,7 +3,7 @@ import sys,json
 import numpy as np 
 from marble import Marble
 from util import progress
-from optparse import OptionParser
+from main import main
 
 from sklearn.neighbors import NearestNeighbors
 
@@ -13,8 +13,8 @@ class EMMarble(Marble):
     """
     def __init__(self,conf,mode,verbose=False,max_artists=sys.maxint):
         # initialize the superclass
-        Marble.__init__(self,root,conf,verbose,max_artists)
-
+        Marble.__init__(self,conf,mode,verbose,max_artists)
+        
         self.initialize_weights()
         self.em_iter = self.conf["em"]["iter"]
 
@@ -95,24 +95,4 @@ class EMMarble(Marble):
 
 
 if __name__ == '__main__':
-
-    parser = OptionParser()
-    parser.add_option("-l", "--lyrics", dest="lyrics_root",
-                      help="where are the lyrics files located?", default="lyrics/")
-    parser.add_option("-v", "--verbose",
-                      action="store_true", dest="verbose", default=False,
-                      help="print status messages to stdout")
-    parser.add_option("-a", "--artists", dest="max_artists", type='int', default=sys.maxint,
-                      help="number of artists to run")
-    parser.add_option("-c", "--conf", dest="conf", default="conf/em.json",
-            help="location of the em json config file, specifying model parameters")
-
-    (options, args) = parser.parse_args()
-
-    # open and parse the config file
-    with open(options.conf) as f:
-        conf = json.load(f)
-        sys.stderr.write("Using parameters: " + str(conf) + "\n")
-
-        d = EMMarble(options.lyrics_root,conf,verbose=options.verbose,max_artists=options.max_artists)
-        d.train()
+    main(EMMarble)
