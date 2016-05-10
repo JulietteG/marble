@@ -8,20 +8,22 @@ from optparse import OptionParser
 from sklearn.neighbors import NearestNeighbors
 
 class EMMarble(Marble):
-    def __init__(self,root,conf,verbose=False,max_artists=sys.maxint):
+    """
+    EMMarble manages the training / testing of the E/M model 
+    """
+    def __init__(self,conf,mode,verbose=False,max_artists=sys.maxint):
         # initialize the superclass
         Marble.__init__(self,root,conf,verbose,max_artists)
 
         self.initialize_weights()
-        self.em_iter = conf["em_iter"]
+        self.em_iter = self.conf["em"]["iter"]
 
-        self.neigh = NearestNeighbors(n_neighbors=conf["neighbors"],metric=conf["metric"])
+        self.neigh = NearestNeighbors(n_neighbors=self.conf["em"]["neighbors"],metric=self.conf["em"]["metric"])
         
     def initialize_weights(self):
         sys.stderr.write("Initializing weights...")
         self.weights = np.ones(self.m_features.shape[1])
         sys.stderr.write("\n")
-
 
     def calc_x(self):
         X = np.zeros(self.m_features.shape)

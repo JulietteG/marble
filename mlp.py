@@ -2,8 +2,7 @@
 import sys,json,os,pickle
 import numpy as np
 from marble import Marble
-from optparse import OptionParser
-from util import verify_paths
+from main import main
 
 from sklearn.neural_network import MLPClassifier
 from sklearn.neighbors import NearestNeighbors
@@ -76,46 +75,4 @@ class MLPMarble(Marble):
         self.calc_stats()
 
 if __name__ == '__main__':
-
-    parser = OptionParser(usage="usage: prog <train|test> [options]")
-    parser.add_option("-v", "--verbose",
-                      action="store_true", dest="verbose", default=False,
-                      help="print status messages to stdout")
-    parser.add_option("-a", "--artists", dest="max_artists", type='int', default=sys.maxint,
-                      help="number of artists to run")
-    parser.add_option("-c", "--conf", dest="conf", default="conf.json",
-            help="location of the mlp json config file, specifying model parameters")
-
-    (options, args) = parser.parse_args()
-
-    if len(sys.argv) < 2:
-        parser.print_help()
-        sys.exit(1)
-    else:
-        # train | test
-        mode = sys.argv[1]
-
-        # make sure it's either train | test
-        if mode != "train" and mode != "test":
-            parser.print_help()
-            sys.exit(1)
-
-        sys.stderr.write("mode = " + mode + "\n")
-    
-    # open and parse the config file
-    with open(options.conf) as f:
-        conf = json.load(f)
-        sys.stderr.write("Using parameters: " + str(conf) + "\n")
-
-        # Verify that all paths are valid
-        verify_paths(conf["paths"],mode=mode)
-
-        # construct the marble
-        d = MLPMarble(conf,mode,verbose=options.verbose,max_artists=options.max_artists)
-        
-        # test / train as appropriate
-        if mode == "train":
-            d.train()
-        else:
-            d.test()
-
+    main(MLPMarble)
