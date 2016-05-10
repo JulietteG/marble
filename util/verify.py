@@ -5,10 +5,10 @@ def verify_paths(paths,mode="train"):
     Verify the files/directories in the paths part of the conf hash.
     """
 
-    # ensure that dir is a valid directory, for both training and testing
+    # ensure that dir is a valid directory, for both training and testing. create it, if not.
     if not os.path.isdir(paths["dir"]):
-        sys.stderr.write("Error: " + paths["dir"] + " must be a valid directory.\n\tGo ahead and create it.\n")
-        sys.exit(1)
+        sys.stderr.write("Error: " + paths["dir"] + " must be a valid directory.\n\tCreating it now.\n")
+        os.mkdir(paths["dir"])
 
     # ensure that each file exists, when testing
     if mode == "test":
