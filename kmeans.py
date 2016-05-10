@@ -31,18 +31,18 @@ class KMeansMarble(Marble):
         for (i,label) in enumerate(self.kmeans.labels_):
             self.artists[i].label = label 
 
-	label_to_artists = defaultdict(lambda: [])
+	label_to_artist_ids = defaultdict(lambda: [])
 
 	# construct the hash
 	for artist in self.artists:
-	    label_to_artists[artist.label].append(artist)
+	    label_to_artist_ids[artist.label].append(artist._id)
 
 	# and determine which artists are predicted
 	for artist in self.artists:
-	    predicted_artists = label_to_artists[artist.label][:]
+	    predicted_artists = label_to_artist_ids[artist.label][:]
 
 	    # remove this artist from the cluster
-	    predicted_artists.remove(artist)
+	    predicted_artists.remove(artist._id)
 
 	    artist.predicted_similar = predicted_artists
 
