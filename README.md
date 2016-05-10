@@ -1,5 +1,7 @@
 # MARBLE: Musical Artist Recommendations Based on Lyrical Evidence
 
+This project is host of GitHub: [https://github.com/JulietteG/marble](https://github.com/JulietteG/marble).
+
 ## Dependencies
 
 MARBLE makes use of the following Python packages:
