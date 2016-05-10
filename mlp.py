@@ -55,19 +55,15 @@ class MLPMarble(Marble):
             self.clf = pickle.load(f)
         
         # grab the weights matrix from the saved clf model
-        input_bias_v = self.clf.intercepts_[0]
         weight_m = self.clf.coefs_[0]
-        hidden_bias_v = self.clf.intercepts_[1]
 
         artist_vectors = []
         for i in xrange(len(self.artists)):
             
             # calculate the hidden layer for artist i
             feature_v = self.m_features[i]
-            input_v = np.add(feature_v,input_bias_v)
-            hidden_v = np.dot(weight_m,input_v)
-            hidden_v = np.add(hidden_v,hidden_bias_v)
-            artist_vectors.append(hidden_v)
+            artist_v = np.dot(weight_m,feature_v)
+            artist_vectors.append(artist_v)
 
         self.neigh.fit(artist_vectors)
 
