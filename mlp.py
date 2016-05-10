@@ -15,7 +15,7 @@ class MLPMarble(Marble):
         # initialize the superclass
         Marble.__init__(self,conf,mode,verbose,max_artists)
 
-        self.clf = MLPClassifier(hidden_layer_sizes=tuple(self.conf["mlp"]["hidden_layer_sizes"]),max_iter=self.conf["mlp"]["max_iter"],verbose=verbose)
+        self.clf = MLPClassifier(hidden_layer_sizes=tuple(self.conf["mlp"]["hidden_layer_sizes"]),max_iter=self.conf["mlp"]["max_iter"])
         self.neigh = NearestNeighbors(n_neighbors=self.conf["mlp"]["neighbors"],metric=self.conf["mlp"]["metric"])
 
     def train(self):
@@ -54,16 +54,17 @@ class MLPMarble(Marble):
         with open(os.path.join(self.conf["paths"]["dir"],self.conf["paths"]["mlp"])) as f:
             self.clf = pickle.load(f)
         
-        # grab the weights matrix, biases from the saved clf model
+        # grab the weights matrix from the saved clf model
+        input_bias_v = self.clf.intercepts_[0]
         weight_m = self.clf.coefs_[0]
-        hidden_bias_v = self.clf.intercepts_[0]
+        hidden_bias_v = self.clf.intercepts_[1]
 
-        import pdb; pdb.set_trace()
         artist_vectors = []
         for i in xrange(len(self.artists)):
             
             # calculate the hidden layer for artist i
-            input_v = self.m_features[i]
+            feature_v = self.m_features[i]
+            input_v = np.add(feature_v,input_bias_v)
             hidden_v = np.dot(weight_m,input_v)
             hidden_v = np.add(hidden_v,hidden_bias_v)
             artist_vectors.append(hidden_v)
