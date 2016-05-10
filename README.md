@@ -68,7 +68,7 @@ The complete and final model sources from `mlp.py`. To run:
 ./mlp.py <train|test> [options]
 ```
 
-where "train" will run the training program and "test" will run the testing program. Please ensure that the `var/` directory exists before trying to run the training program. Furthermore, all model files must exist for the testing program to run run. 
+where "train" will run the training program and "test" will run the testing program. Please ensure that the `var/` directory exists before trying to run the training program. Furthermore, all model files must exist for the testing program to run correctly. 
 
 These and other configuration parameters can be found in `config.json`.
 
